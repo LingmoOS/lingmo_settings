@@ -22,7 +22,7 @@ Homepage: https://github.com/lingmoos/settings
 Package: lingmo-settings
 Architecture: any
 Depends: power-profiles-daemon,
-         lingmo-sdk,
+         lingmo-sdk-dev,
          lingmo-framework,
          ${misc:Depends},
          ${shlibs:Depends}
