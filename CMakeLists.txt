@@ -11,7 +11,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include(GNUInstallDirs)
 include(CTest)
 
-find_package(LingmoToolkit REQUIRED)
+find_package(LingmoSDK REQUIRED)
 
 # Where the pictures are looked up; a scratch build that is never installed
 # can point it at src/ instead.
@@ -59,7 +59,7 @@ add_library(settings-ui OBJECT
 )
 target_include_directories(settings-ui PUBLIC src)
 target_compile_definitions(settings-ui PUBLIC SETTINGS_DATA_DIR="${SETTINGS_DATA_DIR}")
-target_link_libraries(settings-ui PUBLIC Lingmo::Toolkit)
+target_link_libraries(settings-ui PUBLIC Lingmo::SDK)
 
 # A page's own dependencies: src/pages/<page>/page.cmake finds and links
 # them to settings-ui.

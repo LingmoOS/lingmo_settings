@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Lingmo OS Team <team@lingmo.org>
 Build-Depends: cmake,
                debhelper-compat (= 14),
-               lingmo-toolkit,
+               lingmo-sdk,
                lingmo-framework,
                libicu-dev,
                libcrypt-dev,
@@ -22,7 +22,7 @@ Homepage: https://github.com/lingmoos/settings
 Package: lingmo-settings
 Architecture: any
 Depends: power-profiles-daemon,
-         lingmo-toolkit,
+         lingmo-sdk,
          lingmo-framework,
          ${misc:Depends},
          ${shlibs:Depends}
