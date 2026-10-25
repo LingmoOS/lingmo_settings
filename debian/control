@@ -1,0 +1,29 @@
+Source: lingmo-settings
+Section: devel
+Priority: optional
+Maintainer: Lingmo OS Team <team@lingmo.org>
+Build-Depends: cmake,
+               debhelper-compat (= 14),
+               lingmo-toolkit,
+               lingmo-framework,
+               libicu-dev,
+               libcrypt-dev,
+               libexpat1-dev,
+               libfontconfig-dev,
+               libpipewire-0.3-dev,
+               libspa-0.2-dev,
+               libsystemd-dev,
+               libxcursor-dev,
+               libxkbcommon-dev,
+               pkg-config
+Standards-Version: 4.7.2
+Homepage: https://github.com/lingmoos/settings
+
+Package: lingmo-settings
+Architecture: any
+Depends: power-profiles-daemon,
+         lingmo-toolkit,
+         lingmo-framework,
+         ${misc:Depends},
+         ${shlibs:Depends}
+Description: Lingmo Settings
