@@ -1,5 +1,5 @@
-find_package(CutefishClients REQUIRED COMPONENTS bluez)
-target_link_libraries(settings-ui PUBLIC Cutefish::BluezClient)
+find_package(LingmoClients REQUIRED COMPONENTS bluez)
+target_link_libraries(settings-ui PUBLIC Lingmo::BluezClient)
 
 if(BUILD_TESTING)
     # The page test's fake BlueZ answers sd-bus calls for any object path.

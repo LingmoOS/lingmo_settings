@@ -1,2 +1,2 @@
-find_package(CutefishClients REQUIRED COMPONENTS upower)
-target_link_libraries(settings-ui PUBLIC Cutefish::UPowerClient)
+find_package(LingmoClients REQUIRED COMPONENTS upower)
+target_link_libraries(settings-ui PUBLIC Lingmo::UPowerClient)

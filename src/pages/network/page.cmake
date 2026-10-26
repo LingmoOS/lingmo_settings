@@ -1,2 +1,2 @@
-find_package(CutefishClients REQUIRED COMPONENTS networkmanager)
-target_link_libraries(settings-ui PUBLIC Cutefish::NetworkManagerClient)
+find_package(LingmoClients REQUIRED COMPONENTS networkmanager)
+target_link_libraries(settings-ui PUBLIC Lingmo::NetworkManagerClient)
