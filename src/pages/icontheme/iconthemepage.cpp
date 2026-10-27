@@ -15,7 +15,7 @@
 #include "window/pagelist.h"
 
 using namespace Lingmo::ui;
-using Lingmo::Appearance::Appearance;
+using Lingmo::appearance::Appearance;
 using Lingmo::i18n::tr;
 
 namespace settings {

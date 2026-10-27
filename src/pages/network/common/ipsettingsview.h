@@ -13,7 +13,7 @@
 #include "lingmo/networkmanager/ip_utils.h"
 #include "ui/cell_layout.h"
 
-namespace Lingmo::NetworkManager {
+namespace Lingmo::Networkmanager {
 class Handler;
 }
 
@@ -51,15 +51,15 @@ private:
     FormRow addRow(Lingmo::ui::ColumnLayout* card, const std::string& label);
     Lingmo::ui::TextField* addField(Lingmo::ui::RowLayout* row, const std::string& placeholder);
     void load();
-    Lingmo::NetworkManager::ip::Form collect() const;
+    Lingmo::Networkmanager::ip::Form collect() const;
     void fillFromCurrent(bool v4);
     void save();
     void update();
 
     std::string m_connectionPath;
-    std::unique_ptr<Lingmo::NetworkManager::Handler> m_handler;
+    std::unique_ptr<Lingmo::Networkmanager::Handler> m_handler;
     std::vector<Lingmo::base::Subscription> m_subscriptions;
-    Lingmo::NetworkManager::ip::Form m_form;
+    Lingmo::Networkmanager::ip::Form m_form;
     bool m_saving = false;
     std::string m_error;
     std::vector<Lingmo::ui::Label*> m_fieldLabels;

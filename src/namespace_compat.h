@@ -2,35 +2,36 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // The settings pages name the framework clients with lower-case prefixes
-// (accounts::, upower::, audio::, ...); the clients themselves live in
-// Lingmo::Accounts, Lingmo::UPower, Lingmo::Audio, ... The project's compile
-// options force-include this header.
+// (accounts::, upower::, audio::, ...). The clients live in Lingmo::Accounts,
+// Lingmo::upower, Lingmo::Audio, ...; the spellings differ per client. The
+// project's compile options force-include this header.
 #pragma once
 
 #ifdef __cplusplus
 
 namespace Lingmo {
 namespace Accounts {}
-namespace Appearance {}
+namespace appearance {}
 namespace Audio {}
-namespace Bluetooth {}
+namespace bluez {}
 namespace Display {}
 namespace Files {}
-namespace NetworkManager {}
-namespace PowerProfiles {}
-namespace TimeDate {}
-namespace UPower {}
+namespace Networkmanager {}
+namespace powerprofiles {}
+namespace timedate {}
+namespace upower {}
 } // namespace Lingmo
 
 namespace accounts = Lingmo::Accounts;
-namespace appearance = Lingmo::Appearance;
+namespace appearance = Lingmo::appearance;
 namespace audio = Lingmo::Audio;
-namespace bluetooth = Lingmo::Bluetooth;
+namespace bluez = Lingmo::bluez;
+namespace bluetooth = Lingmo::bluez;
 namespace display = Lingmo::Display;
 namespace files = Lingmo::Files;
-namespace networkmanager = Lingmo::NetworkManager;
-namespace powerprofiles = Lingmo::PowerProfiles;
-namespace timedate = Lingmo::TimeDate;
-namespace upower = Lingmo::UPower;
+namespace networkmanager = Lingmo::Networkmanager;
+namespace powerprofiles = Lingmo::powerprofiles;
+namespace timedate = Lingmo::timedate;
+namespace upower = Lingmo::upower;
 
 #endif // __cplusplus

@@ -13,7 +13,7 @@
 #include "base/signal.h"
 #include "base/timer.h"
 
-namespace Lingmo::UPower {
+namespace Lingmo::upower {
 class BatteryStatus;
 class Device;
 }
@@ -69,8 +69,8 @@ private:
     void readKernelChargeLimit();
 
     bool m_mock;
-    std::shared_ptr<Lingmo::UPower::BatteryStatus> m_status;
-    std::unique_ptr<Lingmo::UPower::Device> m_device;
+    std::shared_ptr<Lingmo::upower::BatteryStatus> m_status;
+    std::unique_ptr<Lingmo::upower::Device> m_device;
     std::vector<Lingmo::base::Subscription> m_subscriptions;
     Lingmo::base::Subscription m_deviceSubscription;
     Lingmo::base::Timer m_recheck;

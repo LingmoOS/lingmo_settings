@@ -20,7 +20,7 @@
 #include "window/settingswindow.h"
 
 using namespace Lingmo::ui;
-using Lingmo::UPower::HistorySample;
+using Lingmo::upower::HistorySample;
 using namespace settings;
 
 namespace {

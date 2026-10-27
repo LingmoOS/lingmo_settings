@@ -29,7 +29,7 @@
 #include "window/settingswindow.h"
 
 using namespace Lingmo;
-using namespace Lingmo::Bluetooth;
+using namespace Lingmo::bluez;
 using namespace Lingmo::ui;
 using Lingmo::i18n::format;
 using Lingmo::i18n::tr;

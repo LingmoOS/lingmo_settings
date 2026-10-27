@@ -11,8 +11,8 @@
 
 #include "window/options.h"
 
-using Lingmo::UPower::Device;
-using Lingmo::UPower::HistorySample;
+using Lingmo::upower::Device;
+using Lingmo::upower::HistorySample;
 
 namespace settings {
 

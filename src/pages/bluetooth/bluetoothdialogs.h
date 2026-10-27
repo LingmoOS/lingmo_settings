@@ -27,7 +27,7 @@ class SwitchRow;
 class AdapterDetailsDialog
 {
 public:
-    AdapterDetailsDialog(Lingmo::ui::Window* parent, std::shared_ptr<Lingmo::Bluetooth::BluetoothObject> adapter);
+    AdapterDetailsDialog(Lingmo::ui::Window* parent, std::shared_ptr<Lingmo::bluez::BluetoothObject> adapter);
     ~AdapterDetailsDialog();
 
     void show();
@@ -36,7 +36,7 @@ private:
     void update();
     void rename();
 
-    std::shared_ptr<Lingmo::Bluetooth::BluetoothObject> m_adapter;
+    std::shared_ptr<Lingmo::bluez::BluetoothObject> m_adapter;
     std::unique_ptr<Lingmo::ui::DialogWindow> m_dialog;
     Lingmo::ui::TextField* m_name;
     InfoRow* m_address;
@@ -51,7 +51,7 @@ private:
 class DeviceDetailsDialog
 {
 public:
-    DeviceDetailsDialog(Lingmo::ui::Window* parent, std::shared_ptr<Lingmo::Bluetooth::BluetoothObject> device);
+    DeviceDetailsDialog(Lingmo::ui::Window* parent, std::shared_ptr<Lingmo::bluez::BluetoothObject> device);
     ~DeviceDetailsDialog();
 
     void show();
@@ -59,7 +59,7 @@ public:
 private:
     void update();
 
-    std::shared_ptr<Lingmo::Bluetooth::BluetoothObject> m_device;
+    std::shared_ptr<Lingmo::bluez::BluetoothObject> m_device;
     std::unique_ptr<Lingmo::ui::DialogWindow> m_dialog;
     InfoRow* m_type;
     InfoRow* m_model;

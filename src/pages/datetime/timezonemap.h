@@ -10,7 +10,7 @@
 #include "base/signal.h"
 #include "ui/geometry.h"
 
-namespace Lingmo::TimeDate {
+namespace Lingmo::timedate {
 class TimeDate;
 }
 
@@ -44,7 +44,7 @@ public:
         std::string difference;
     };
 
-    explicit TimeZoneMap(Lingmo::TimeDate::TimeDate& timeDate);
+    explicit TimeZoneMap(Lingmo::timedate::TimeDate& timeDate);
     ~TimeZoneMap();
 
     // Picks the zones close enough to a click on a map of the given size, or
@@ -95,7 +95,7 @@ private:
     int nearestIndex(int x, int y, int width, int height) const;
     const Item* find(const std::string& id) const;
 
-    Lingmo::TimeDate::TimeDate& m_timeDate;
+    Lingmo::timedate::TimeDate& m_timeDate;
     Lingmo::base::Subscription m_timeDateChanged;
     std::vector<Item> m_list;
     std::string m_currentTimeZone;

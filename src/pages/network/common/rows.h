@@ -70,10 +70,10 @@ public:
     WifiRow();
 
     // `displayed` is the state the row shows, which may lag behind NetworkManager's.
-    void setItem(const Lingmo::NetworkManager::NetworkItem& item,
-                 Lingmo::NetworkManager::ConnectionStatus displayed);
-    const Lingmo::NetworkManager::NetworkItem& item() const { return m_item; }
-    Lingmo::NetworkManager::ConnectionStatus displayedState() const { return m_displayed; }
+    void setItem(const Lingmo::Networkmanager::NetworkItem& item,
+                 Lingmo::Networkmanager::ConnectionStatus displayed);
+    const Lingmo::Networkmanager::NetworkItem& item() const { return m_item; }
+    Lingmo::Networkmanager::ConnectionStatus displayedState() const { return m_displayed; }
 
     std::function<void(WifiRow* row)> onInfo;
 
@@ -81,8 +81,8 @@ protected:
     void layout() override;
 
 private:
-    Lingmo::NetworkManager::NetworkItem m_item;
-    Lingmo::NetworkManager::ConnectionStatus m_displayed = Lingmo::NetworkManager::ConnectionStatus::Deactivated;
+    Lingmo::Networkmanager::NetworkItem m_item;
+    Lingmo::Networkmanager::ConnectionStatus m_displayed = Lingmo::Networkmanager::ConnectionStatus::Deactivated;
     Lingmo::ui::Icon* m_icon;
     Lingmo::ui::BusyIndicator* m_busy;
     Lingmo::ui::Icon* m_check;
@@ -91,6 +91,6 @@ private:
 };
 
 // Joined with a user name, which the join window asks for.
-bool isEnterprise(Lingmo::NetworkManager::SecurityType type);
+bool isEnterprise(Lingmo::Networkmanager::SecurityType type);
 
 } // namespace settings::network

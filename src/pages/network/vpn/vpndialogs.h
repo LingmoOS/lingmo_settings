@@ -40,7 +40,7 @@ class VpnEditor;
 class AddVpnDialog
 {
 public:
-    AddVpnDialog(SettingsWindow& window, Lingmo::NetworkManager::Handler& handler);
+    AddVpnDialog(SettingsWindow& window, Lingmo::Networkmanager::Handler& handler);
     ~AddVpnDialog();
 
     void show();
@@ -53,11 +53,11 @@ private:
     void update();
 
     SettingsWindow& m_window;
-    Lingmo::NetworkManager::Handler& m_handler;
+    Lingmo::Networkmanager::Handler& m_handler;
     std::unique_ptr<FormDialog> m_dialog;
     std::vector<Lingmo::base::Subscription> m_subscriptions;
     // Read again each time the dialog opens, so a plugin installed meanwhile shows up.
-    std::vector<Lingmo::NetworkManager::vpn::Kind> m_kinds;
+    std::vector<Lingmo::Networkmanager::vpn::Kind> m_kinds;
     bool m_adding = false;
     std::string m_error;
     Lingmo::ui::Label* m_kindLabel = nullptr;
@@ -74,7 +74,7 @@ private:
 class VpnDetailsDialog
 {
 public:
-    VpnDetailsDialog(SettingsWindow& window, NetworkList& list, Lingmo::NetworkManager::Handler& handler,
+    VpnDetailsDialog(SettingsWindow& window, NetworkList& list, Lingmo::Networkmanager::Handler& handler,
                      std::string connectionPath);
     ~VpnDetailsDialog();
 
@@ -88,7 +88,7 @@ private:
 
     SettingsWindow& m_window;
     NetworkList& m_list;
-    Lingmo::NetworkManager::Handler& m_handler;
+    Lingmo::Networkmanager::Handler& m_handler;
     std::string m_connectionPath;
     std::unique_ptr<Lingmo::ui::DialogWindow> m_dialog;
     std::unique_ptr<Lingmo::ui::FileChooser> m_exportChooser;
