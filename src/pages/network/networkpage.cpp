@@ -15,7 +15,7 @@
 
 using namespace Lingmo::ui;
 using Lingmo::i18n::tr;
-namespace nm = Lingmo::networkmanager;
+namespace nm = Lingmo::Networkmanager;
 
 namespace settings::network {
 

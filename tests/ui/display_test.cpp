@@ -31,7 +31,7 @@
 
 using namespace Lingmo;
 using namespace Lingmo::base;
-using namespace Lingmo::display;
+using namespace Lingmo::Display;
 using namespace Lingmo::ui;
 using namespace settings;
 using namespace std::chrono_literals;

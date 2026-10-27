@@ -16,7 +16,7 @@
 #include "ui/window.h"
 
 using namespace settings::network;
-namespace nm = Lingmo::networkmanager;
+namespace nm = Lingmo::Networkmanager;
 namespace schema = Lingmo::Networkmanager::vpn::schema;
 
 static nm::VpnForm openVpnForm(const std::map<std::string, std::string>& data)

@@ -36,7 +36,7 @@
 #include "window/settingswindow.h"
 
 using namespace Lingmo;
-using namespace Lingmo::display;
+using namespace Lingmo::Display;
 using namespace Lingmo::ui;
 using namespace std::chrono_literals;
 using Lingmo::i18n::format;
