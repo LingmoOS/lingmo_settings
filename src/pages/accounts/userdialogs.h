@@ -11,7 +11,7 @@
 #include "pages/accounts/passwordchanger.h"
 #include "widgets/formdialog.h"
 
-namespace Lingmo::accounts {
+namespace Lingmo::Accounts {
 class AccountsManager;
 }
 
@@ -58,14 +58,14 @@ private:
 class AddUserDialog : public FormDialog
 {
 public:
-    AddUserDialog(SettingsWindow& parent, Lingmo::accounts::AccountsManager& manager);
+    AddUserDialog(SettingsWindow& parent, Lingmo::Accounts::AccountsManager& manager);
 
 private:
     void update();
     void add();
     void setWaiting(bool waiting);
 
-    Lingmo::accounts::AccountsManager& m_manager;
+    Lingmo::Accounts::AccountsManager& m_manager;
     Lingmo::ui::GridLayout* m_form;
     Lingmo::ui::TextField* m_name;
     Lingmo::ui::TextField* m_password;

@@ -5,6 +5,10 @@ project(lingmo-settings
     LANGUAGES CXX
 )
 
+# The pages use lower-case prefixes for the framework clients;
+# namespace_compat.h aliases them at global scope.
+add_compile_options(-include${CMAKE_CURRENT_SOURCE_DIR}/src/namespace_compat.h)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 

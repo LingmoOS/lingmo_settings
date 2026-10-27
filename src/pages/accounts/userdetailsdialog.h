@@ -27,14 +27,14 @@ class SettingsWindow;
 class UserDetailsDialog
 {
 public:
-    UserDetailsDialog(SettingsWindow& window, std::shared_ptr<Lingmo::accounts::UserAccount> account,
+    UserDetailsDialog(SettingsWindow& window, std::shared_ptr<Lingmo::Accounts::UserAccount> account,
                       int64_t loggedInUid);
     ~UserDetailsDialog();
 
     UserDetailsDialog(const UserDetailsDialog&) = delete;
     UserDetailsDialog& operator=(const UserDetailsDialog&) = delete;
 
-    const std::shared_ptr<Lingmo::accounts::UserAccount>& account() const { return m_account; }
+    const std::shared_ptr<Lingmo::Accounts::UserAccount>& account() const { return m_account; }
     Lingmo::ui::DialogWindow* dialog() const { return m_dialog.get(); }
 
     void show();
@@ -47,7 +47,7 @@ public:
 private:
     void update();
 
-    std::shared_ptr<Lingmo::accounts::UserAccount> m_account;
+    std::shared_ptr<Lingmo::Accounts::UserAccount> m_account;
     int64_t m_loggedInUid;
     std::unique_ptr<Lingmo::ui::DialogWindow> m_dialog;
     Lingmo::base::Subscription m_changed;

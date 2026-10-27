@@ -51,32 +51,32 @@ public:
     const Query& query() const { return m_query; }
 
     // Empty until the first answer arrives.
-    const std::vector<Lingmo::upower::HistorySample>& samples() const { return m_samples; }
+    const std::vector<Lingmo::UPower::HistorySample>& samples() const { return m_samples; }
     Lingmo::base::Signal<> samplesChanged;
 
     // The samples to plot from UPower's answers: the span's samples, newest
     // first, and the whole history when it came, over `duration` seconds up
     // to `now`.
-    static std::vector<Lingmo::upower::HistorySample> plotted(
-            const std::vector<Lingmo::upower::HistorySample>& window,
-            const std::optional<std::vector<Lingmo::upower::HistorySample>>& all, uint32_t now,
+    static std::vector<Lingmo::UPower::HistorySample> plotted(
+            const std::vector<Lingmo::UPower::HistorySample>& window,
+            const std::optional<std::vector<Lingmo::UPower::HistorySample>>& all, uint32_t now,
             uint32_t duration);
 
 private:
     struct Answers {
-        std::optional<std::vector<Lingmo::upower::HistorySample>> window;
-        std::optional<std::vector<Lingmo::upower::HistorySample>> all;
+        std::optional<std::vector<Lingmo::UPower::HistorySample>> window;
+        std::optional<std::vector<Lingmo::UPower::HistorySample>> all;
         int outstanding = 2;
     };
 
     void request();
     void answered(const std::shared_ptr<Answers>& answers);
-    std::vector<Lingmo::upower::HistorySample> mockSamples() const;
+    std::vector<Lingmo::UPower::HistorySample> mockSamples() const;
 
     Query m_query;
     bool m_loaded = false;
-    std::unique_ptr<Lingmo::upower::Device> m_device;
-    std::vector<Lingmo::upower::HistorySample> m_samples;
+    std::unique_ptr<Lingmo::UPower::Device> m_device;
+    std::vector<Lingmo::UPower::HistorySample> m_samples;
     std::shared_ptr<Answers> m_answers;
     Lingmo::base::dbus::PendingCall m_windowCall;
     Lingmo::base::dbus::PendingCall m_allCall;

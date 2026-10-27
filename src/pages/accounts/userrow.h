@@ -27,10 +27,10 @@ class UserAvatar;
 class UserRow : public ListRow
 {
 public:
-    UserRow(std::shared_ptr<Lingmo::accounts::UserAccount> account, int64_t loggedInUid);
+    UserRow(std::shared_ptr<Lingmo::Accounts::UserAccount> account, int64_t loggedInUid);
     ~UserRow() override;
 
-    const std::shared_ptr<Lingmo::accounts::UserAccount>& account() const { return m_account; }
+    const std::shared_ptr<Lingmo::Accounts::UserAccount>& account() const { return m_account; }
     // Shows a picture before the account has it.
     void showPicture(const std::string& path);
 
@@ -43,7 +43,7 @@ protected:
 private:
     void update();
 
-    std::shared_ptr<Lingmo::accounts::UserAccount> m_account;
+    std::shared_ptr<Lingmo::Accounts::UserAccount> m_account;
     int64_t m_loggedInUid;
     Lingmo::base::Subscription m_changed;
     UserAvatar* m_avatar;
@@ -54,7 +54,7 @@ private:
 };
 
 // The accounts in the service's order, the one logged in first.
-std::vector<std::shared_ptr<Lingmo::accounts::UserAccount>>
-loggedInFirst(const std::vector<std::shared_ptr<Lingmo::accounts::UserAccount>>& accounts, int64_t loggedInUid);
+std::vector<std::shared_ptr<Lingmo::Accounts::UserAccount>>
+loggedInFirst(const std::vector<std::shared_ptr<Lingmo::Accounts::UserAccount>>& accounts, int64_t loggedInUid);
 
 } // namespace settings

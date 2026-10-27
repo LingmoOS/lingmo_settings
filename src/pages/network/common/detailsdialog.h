@@ -13,7 +13,7 @@
 #include "base/signal.h"
 #include "lingmo/networkmanager/network_model.h"
 
-namespace Lingmo::networkmanager {
+namespace Lingmo::NetworkManager {
 class ConnectionSettings;
 class Handler;
 }
@@ -49,7 +49,7 @@ public:
 
     // A saved network is followed by its connection, others by name.
     DetailsDialog(SettingsWindow& window, NetworkList& list, Kind kind,
-                  const Lingmo::networkmanager::NetworkItem& item);
+                  const Lingmo::NetworkManager::NetworkItem& item);
     ~DetailsDialog();
 
     DetailsDialog(const DetailsDialog&) = delete;
@@ -63,7 +63,7 @@ public:
 private:
     class Content;
 
-    std::optional<Lingmo::networkmanager::NetworkItem> find() const;
+    std::optional<Lingmo::NetworkManager::NetworkItem> find() const;
     void update();
     void showIpSettings(bool shown);
     void setSaved(bool saved);
@@ -74,11 +74,11 @@ private:
     Kind m_kind;
     std::string m_connectionPath;
     std::string m_ssid;
-    std::unique_ptr<Lingmo::networkmanager::Handler> m_handler;
-    std::unique_ptr<Lingmo::networkmanager::ConnectionSettings> m_settings;
+    std::unique_ptr<Lingmo::NetworkManager::Handler> m_handler;
+    std::unique_ptr<Lingmo::NetworkManager::ConnectionSettings> m_settings;
     std::unique_ptr<Lingmo::ui::DialogWindow> m_dialog;
     Lingmo::base::Subscription m_subscription;
-    Lingmo::networkmanager::NetworkItem m_row;
+    Lingmo::NetworkManager::NetworkItem m_row;
     bool m_found = false;
     bool m_saved = false;
     bool m_ipSettingsShown = false;

@@ -27,7 +27,7 @@
 #include "window/pagelist.h"
 
 using namespace Lingmo;
-using namespace Lingmo::audio;
+using namespace Lingmo::Audio;
 using namespace Lingmo::ui;
 using Lingmo::i18n::format;
 using Lingmo::i18n::tr;

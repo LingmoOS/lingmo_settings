@@ -38,7 +38,7 @@ public:
 
     // An enterprise network in range; shows nothing once the access point is gone.
     void openNetwork(const std::string& accessPoint,
-                     const std::optional<Lingmo::networkmanager::WirelessNetwork>& network);
+                     const std::optional<Lingmo::NetworkManager::WirelessNetwork>& network);
     void show();
     void close();
     bool isOpen() const;

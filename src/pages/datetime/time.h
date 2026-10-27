@@ -7,7 +7,7 @@
 #include "base/dbus.h"
 #include "base/signal.h"
 
-namespace Lingmo::timedate {
+namespace Lingmo::TimeDate {
 class TimeDate;
 }
 
@@ -17,7 +17,7 @@ namespace settings {
 class TimeSettings
 {
 public:
-    explicit TimeSettings(Lingmo::timedate::TimeDate& timeDate);
+    explicit TimeSettings(Lingmo::TimeDate::TimeDate& timeDate);
 
     bool useNtp() const { return m_useNtp; }
     // Shows at once; a refused or cancelled password puts it back.
@@ -32,7 +32,7 @@ public:
     Lingmo::base::Signal<> twentyFourChanged;
 
 private:
-    Lingmo::timedate::TimeDate& m_timeDate;
+    Lingmo::TimeDate::TimeDate& m_timeDate;
     Lingmo::base::Subscription m_timeDateChanged;
     Lingmo::base::dbus::Proxy m_statusBar;
     bool m_canNtp;

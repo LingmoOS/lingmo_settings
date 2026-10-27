@@ -8,7 +8,7 @@
 
 #include "window/options.h"
 
-using namespace Lingmo::networkmanager;
+using namespace Lingmo::NetworkManager;
 
 namespace settings::network {
 

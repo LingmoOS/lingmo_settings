@@ -38,7 +38,7 @@
 extern char** environ;
 
 using namespace Lingmo;
-using namespace Lingmo::audio;
+using namespace Lingmo::Audio;
 using namespace Lingmo::ui;
 using namespace settings;
 using namespace std::chrono_literals;

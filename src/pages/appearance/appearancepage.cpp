@@ -24,7 +24,7 @@
 #include "window/settingswindow.h"
 
 using namespace Lingmo::ui;
-using Lingmo::appearance::Appearance;
+using Lingmo::Appearance::Appearance;
 using Lingmo::i18n::tr;
 
 namespace settings {

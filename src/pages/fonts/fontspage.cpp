@@ -20,7 +20,7 @@
 #include "window/pagelist.h"
 
 using namespace Lingmo::ui;
-using Lingmo::appearance::Appearance;
+using Lingmo::Appearance::Appearance;
 using Lingmo::i18n::format;
 using Lingmo::i18n::tr;
 

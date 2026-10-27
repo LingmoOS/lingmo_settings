@@ -33,14 +33,14 @@ public:
     VpnEditor();
     ~VpnEditor() override;
 
-    void load(const Lingmo::networkmanager::VpnForm& form);
-    void setSecrets(const Lingmo::networkmanager::VpnSecrets& secrets);
-    Lingmo::networkmanager::VpnValues collect() const;
+    void load(const Lingmo::NetworkManager::VpnForm& form);
+    void setSecrets(const Lingmo::NetworkManager::VpnSecrets& secrets);
+    Lingmo::NetworkManager::VpnValues collect() const;
     void focusFirst();
     // Also measured: a label beside the editor sharing its column.
     void measure(double width);
 
-    const Lingmo::networkmanager::VpnForm& form() const { return m_form; }
+    const Lingmo::NetworkManager::VpnForm& form() const { return m_form; }
     bool installed() const { return m_form.installed; }
     bool complete() const;
     // The label column's width, which a label beside the editor takes too.
@@ -57,7 +57,7 @@ protected:
 private:
     void changed();
 
-    Lingmo::networkmanager::VpnForm m_form;
+    Lingmo::NetworkManager::VpnForm m_form;
     double m_extraLabelWidth = 0;
     Lingmo::ui::Label* m_notInstalled;
     Lingmo::ui::RowLayout* m_nameRow;

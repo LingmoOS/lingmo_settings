@@ -28,7 +28,7 @@ using namespace Lingmo::ui;
 using Lingmo::i18n::format;
 using Lingmo::i18n::tr;
 namespace nm = Lingmo::networkmanager;
-namespace schema = Lingmo::networkmanager::vpn::schema;
+namespace schema = Lingmo::NetworkManager::vpn::schema;
 
 namespace settings::network {
 

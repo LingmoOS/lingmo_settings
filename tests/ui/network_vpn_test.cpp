@@ -17,7 +17,7 @@
 
 using namespace settings::network;
 namespace nm = Lingmo::networkmanager;
-namespace schema = Lingmo::networkmanager::vpn::schema;
+namespace schema = Lingmo::NetworkManager::vpn::schema;
 
 static nm::VpnForm openVpnForm(const std::map<std::string, std::string>& data)
 {

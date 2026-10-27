@@ -11,13 +11,13 @@
 // the Qt version's did.
 TEST(AppearanceClient, WaitsForTheServiceToReportAChange)
 {
-    Lingmo::appearance::Appearance appearance;
+    Lingmo::Appearance::Appearance appearance;
     int changes = 0;
     Lingmo::base::Subscription subscription = appearance.changed.connect([&changes] { ++changes; });
     const int accent = appearance.accentColor();
     appearance.setAccentColor(accent + 1);
-    appearance.setDarkModeSchedule(Lingmo::appearance::Appearance::SunsetToSunrise);
+    appearance.setDarkModeSchedule(Lingmo::Appearance::Appearance::SunsetToSunrise);
     EXPECT_EQ(appearance.accentColor(), accent);
-    EXPECT_EQ(appearance.darkModeSchedule(), int(Lingmo::appearance::Appearance::Never));
+    EXPECT_EQ(appearance.darkModeSchedule(), int(Lingmo::Appearance::Appearance::Never));
     EXPECT_EQ(changes, 0);
 }
