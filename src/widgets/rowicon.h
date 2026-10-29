@@ -25,6 +25,10 @@ public:
     RowIcon(std::string glyph, Lingmo::ui::Color tint);
 
     void set(std::string glyph, Lingmo::ui::Color tint);
+    // The current sidebar entry draws its tile inverted: white behind the
+    // glyph in the accent, so that it still reads against the accent fill the
+    // row itself is drawn with.
+    void setInverted(bool inverted);
 
     Lingmo::ui::SizeF sizeHint() const override { return {24, 24}; }
 
@@ -33,7 +37,11 @@ protected:
     void paint(Lingmo::ui::Painter& painter) override;
 
 private:
+    void applyGlyphColor();
+
     Lingmo::ui::Color m_tint;
+    bool m_inverted = false;
+    bool m_pictureGlyph = false;
     Picture* m_picture;
     Lingmo::ui::Icon* m_glyph;
 };

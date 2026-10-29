@@ -12,6 +12,7 @@
 #include <sys/statvfs.h>
 #include <sys/sysinfo.h>
 #include <sys/utsname.h>
+#include <unistd.h>
 
 #include "base/i18n.h"
 
@@ -216,6 +217,46 @@ std::string internalStorage()
     const double total = double(root.f_blocks) * root.f_frsize;
     const double available = double(root.f_bavail) * root.f_frsize;
     return storageText(formatByteSize(total - available), formatByteSize(total));
+}
+
+std::string hostName()
+{
+    char name[256] = {};
+    return gethostname(name, sizeof(name) - 1) == 0 ? std::string(name) : std::string();
+}
+
+std::string debianVersion()
+{
+    std::ifstream file("/etc/debian_version");
+    std::string line;
+    if (!std::getline(file, line))
+        return {};
+    const size_t end = line.find_last_not_of(" \t\r\n");
+    return end == std::string::npos ? std::string() : line.substr(0, end + 1);
+}
+
+std::string uiVersion()
+{
+    // lingmo-sdk's pkg-config file carries the version the desktop is built
+    // against. The multiarch directory differs per architecture, so every
+    // place it is installed to is tried.
+    for (const char* path : {"/usr/lib/x86_64-linux-gnu/pkgconfig/lingmo-sdk.pc",
+                             "/usr/lib/aarch64-linux-gnu/pkgconfig/lingmo-sdk.pc",
+                             "/usr/lib/riscv64-linux-gnu/pkgconfig/lingmo-sdk.pc",
+                             "/usr/lib/pkgconfig/lingmo-sdk.pc",
+                             "/usr/share/pkgconfig/lingmo-sdk.pc"}) {
+        std::ifstream file(path);
+        if (!file)
+            continue;
+        std::string line;
+        while (std::getline(file, line)) {
+            if (!line.starts_with("Version:"))
+                continue;
+            const size_t begin = line.find_first_not_of(" \t", 8);
+            return begin == std::string::npos ? std::string() : line.substr(begin);
+        }
+    }
+    return {};
 }
 
 } // namespace settings::about

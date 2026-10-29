@@ -6,6 +6,7 @@
 
 #include "ui/icon.h"
 #include "ui/painter.h"
+#include "ui/theme.h"
 #include "widgets/picture.h"
 
 using namespace Lingmo::ui;
@@ -24,18 +25,36 @@ RowIcon::RowIcon(std::string glyph, Color tint)
 void RowIcon::set(std::string glyph, Color tint)
 {
     m_tint = tint;
-    const bool picture = glyph.ends_with(".svg");
-    m_picture->setVisible(picture);
-    m_glyph->setVisible(!picture);
-    // The sidebar's own glyphs are white already; the toolkit's need tinting.
-    if (picture) {
+    m_pictureGlyph = glyph.ends_with(".svg");
+    m_picture->setVisible(m_pictureGlyph);
+    m_glyph->setVisible(!m_pictureGlyph);
+    if (m_pictureGlyph)
         m_picture->setPath(dataPath("images/sidebar/dark/" + glyph));
-        m_picture->setTint(Color::rgb(0xFFFFFF));
-    } else {
+    else
         m_glyph->setIconName(std::move(glyph));
-        m_glyph->setColor(Color::rgb(0xFFFFFF));
-    }
+    applyGlyphColor();
     requestPaint();
+}
+
+void RowIcon::setInverted(bool inverted)
+{
+    if (inverted == m_inverted)
+        return;
+    m_inverted = inverted;
+    applyGlyphColor();
+    requestPaint();
+}
+
+// The sidebar's own glyphs are white already; the toolkit's need tinting. Both
+// take the accent when the tile is inverted, so the glyph is the colour of the
+// row behind it and the tile is the colour of the page behind that.
+void RowIcon::applyGlyphColor()
+{
+    const Color glyph = m_inverted ? m_tint : Color::rgb(0xFFFFFF);
+    if (m_pictureGlyph)
+        m_picture->setTint(glyph);
+    else
+        m_glyph->setColor(glyph);
 }
 
 void RowIcon::layout()
@@ -47,7 +66,8 @@ void RowIcon::layout()
 
 void RowIcon::paint(Painter& painter)
 {
-    painter.fillRoundedRect(localRect(), 6, LinearGradient::vertical(localRect(), m_tint.lighter(1.15), m_tint));
+    const Color fill = m_inverted ? Theme::current().highlightedText : m_tint;
+    painter.fillRoundedRect(localRect(), 6, LinearGradient::vertical(localRect(), fill.lighter(1.15), fill));
 }
 
 } // namespace settings

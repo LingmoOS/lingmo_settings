@@ -28,6 +28,13 @@ std::string processor();
 std::string memorySize();
 // "<used> / <total>" of the root file system.
 std::string internalStorage();
+// The machine's name, as the kernel holds it.
+std::string hostName();
+// The Debian release this system is built on, from /etc/debian_version.
+std::string debianVersion();
+// The lingmo-sdk the desktop is built against, from its pkg-config file;
+// empty when the file is not installed.
+std::string uiVersion();
 
 // With binary units, B through YB, whole numbers.
 std::string formatByteSize(double size);

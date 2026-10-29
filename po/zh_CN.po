@@ -2424,3 +2424,39 @@ msgstr "设置"
 #: src/window/sidebar.cpp
 msgid "No results"
 msgstr "无结果"
+
+#: src/pages/about/aboutpage.cpp
+msgid "PC Name"
+msgstr "设备名称"
+
+#: src/pages/about/aboutpage.cpp
+msgid "OS Version"
+msgstr "操作系统版本"
+
+#: src/pages/about/aboutpage.cpp
+msgid "Debian Version"
+msgstr "Debian 版本"
+
+#: src/pages/about/aboutpage.cpp
+msgid "Linux Kernel Version"
+msgstr "Linux 内核版本"
+
+#: src/pages/about/aboutpage.cpp
+msgid "Lingmo UI Version"
+msgstr "Lingmo UI 版本"
+
+#: src/pages/about/aboutpage.cpp
+msgid "System Type"
+msgstr "系统类型"
+
+#: src/pages/about/aboutpage.cpp
+msgid "Disk"
+msgstr "磁盘"
+
+#: src/pages/about/aboutpage.cpp
+msgid "CPU"
+msgstr "CPU"
+
+#: src/pages/about/aboutpage.cpp
+msgid "System Update"
+msgstr "系统更新"

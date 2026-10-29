@@ -45,7 +45,9 @@ public:
     explicit SidebarItem(const PageInfo& page)
         : m_page(page)
     {
-        m_icon = addChild<RowIcon>(page.icon, page.iconColor);
+        // Every tile carries the accent, as the desktop's sidebar does; the
+        // page's own colour is kept in PageInfo for the lists that want it.
+        m_icon = addChild<RowIcon>(page.icon, Theme::current().highlight);
         m_title = addChild<Label>(tr(page.title.c_str()));
         m_title->setFontSize(metrics::points(kItemPointSize));
         m_title->setVerticallyCentered(true);
@@ -58,6 +60,9 @@ public:
         if (current == m_current)
             return;
         m_current = current;
+        m_icon->setInverted(current);
+        // The title's colour is decided in layout, beside the inactive tint.
+        requestLayout();
         requestPaint();
     }
 
@@ -81,18 +86,20 @@ protected:
         const auto tint = [weight](uint8_t from, uint8_t to) {
             return uint8_t(std::lround(from + (to - from) * weight));
         };
-        m_title->setColor(windowActive(this) ? text
-                                             : Color{tint(grey.r, text.r), tint(grey.g, text.g),
-                                                     tint(grey.b, text.b), grey.a});
+        // The current entry sits on the accent, so its title goes to the
+        // colour that reads on it rather than the window's text colour.
+        m_title->setColor(m_current ? theme.highlightedText
+                                    : windowActive(this)
+                                    ? text
+                                    : Color{tint(grey.r, text.r), tint(grey.g, text.g), tint(grey.b, text.b),
+                                            grey.a});
     }
 
     void paint(Painter& painter) override
     {
         const Theme& theme = Theme::current();
-        // The current entry carries the list's highlight under its own fill,
-        // as the Qt version's list did.
-        if (m_current)
-            painter.drawRoundedRect(localRect(), {theme.mediumRadius, 0, themeCorners()}, theme.text.withAlpha(0.05));
+        // The current entry is filled with the accent, as the desktop's
+        // sidebar has it; pressing shows the same shape in the press colour.
         if (m_pressed || m_current) {
             painter.drawSmoothRectangle(
                 localRect(), theme.mediumRadius,

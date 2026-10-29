@@ -1,3 +1,15 @@
+lingmo-settings (5.0.2+lingmo5u1) unstable; urgency=medium
+
+  * Lay the About page out as the Qt version had it: the wordmark, a rule
+    and the session's wallpaper across the top, then the machine's name
+    and a two-row grid of what it is made of.
+  * Draw the sidebar's current entry in the accent colour, its tile
+    inverted so the glyph still reads against the fill.
+  * Swap the wordmark for the dark theme's own file rather than tinting
+    it, the two drawings differing in more than colour.
+
+ -- Lingmo OS Team <team@lingmo.org>  Thu, 29 Oct 2026 13:35:00 +0800
+
 lingmo-settings (5.0.1+lingmo5u1) unstable; urgency=medium
 
   * Add the Simplified Chinese translation.

@@ -2431,3 +2431,39 @@ msgstr ""
 #: src/window/sidebar.cpp
 msgid "No results"
 msgstr ""
+
+#: src/pages/about/aboutpage.cpp
+msgid "PC Name"
+msgstr ""
+
+#: src/pages/about/aboutpage.cpp
+msgid "OS Version"
+msgstr ""
+
+#: src/pages/about/aboutpage.cpp
+msgid "Debian Version"
+msgstr ""
+
+#: src/pages/about/aboutpage.cpp
+msgid "Linux Kernel Version"
+msgstr ""
+
+#: src/pages/about/aboutpage.cpp
+msgid "Lingmo UI Version"
+msgstr ""
+
+#: src/pages/about/aboutpage.cpp
+msgid "System Type"
+msgstr ""
+
+#: src/pages/about/aboutpage.cpp
+msgid "Disk"
+msgstr ""
+
+#: src/pages/about/aboutpage.cpp
+msgid "CPU"
+msgstr ""
+
+#: src/pages/about/aboutpage.cpp
+msgid "System Update"
+msgstr ""
