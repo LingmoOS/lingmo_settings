@@ -31,6 +31,10 @@ static constexpr double kSearchHeight = 28;
 static constexpr double kTitlePointSize = 12;
 static constexpr double kItemPointSize = 8;
 static constexpr double kIconTile = 24;
+// The sidebar's own background is drawn at 0.7. A category's panel sits a
+// shade clearer than that, so it reads as a layer on the sidebar rather than a
+// hole cut through it.
+static constexpr double kPanelOpacity = 0.5;
 
 static bool windowActive(const View* view)
 {
@@ -246,24 +250,72 @@ protected:
         m_revealIn = nullptr;
     }
 
+    // One panel per category, behind its entries and under them in the stack:
+    // the list paints first, its children over it.
+    void paint(Painter& painter) override
+    {
+        const Theme& theme = Theme::current();
+        const double width = geometry().width - 2 * metrics::sidebarMargin;
+        for (const Panel& panel : m_panels) {
+            const RectF rect{metrics::sidebarMargin, panel.top, width, panel.bottom - panel.top};
+            painter.drawRoundedRect(rect, {theme.mediumRadius, 0, themeCorners()},
+                                    theme.secondBackground.withAlpha(kPanelOpacity));
+        }
+    }
+
 private:
+    // A category's panel, as measure() found it: where its entries begin and
+    // end, its own padding included.
+    struct Panel
+    {
+        double top = 0;
+        double bottom = 0;
+    };
+
     // The content height; places the children when given the list.
     double measure(SidebarList* place) const
     {
         const double width = geometry().width - 2 * metrics::sidebarMargin;
+        // The entries sit inside their category's panel, inset from its edge,
+        // so the panel has something to hold them by.
+        const double inset = metrics::xs;
         double y = 0;
         bool first = true;
+        // The panel of the category being laid out: its first entry's top.
+        double panelTop = 0;
+        bool inPanel = false;
+        if (place)
+            m_panels.clear();
+
         for (const auto& child : children()) {
             const bool section = dynamic_cast<SidebarSection*>(child.get()) != nullptr;
-            if (!section && !first)
+            if (section) {
+                // A category's name closes the panel above it.
+                if (place && inPanel) {
+                    m_panels.push_back({panelTop - inset, y + inset});
+                    inPanel = false;
+                }
+            } else if (!first) {
                 y += metrics::sidebarItemSpacing;
+            }
             const double height = section ? child->sizeHint().height : metrics::sidebarItemHeight;
-            if (place)
-                child->setGeometry({metrics::sidebarMargin, y, width, height});
+            if (place) {
+                if (section)
+                    child->setGeometry({metrics::sidebarMargin, y, width, height});
+                else
+                    child->setGeometry({metrics::sidebarMargin + inset, y, width - 2 * inset, height});
+            }
             y += height;
-            if (!section)
+            if (!section) {
+                if (!inPanel) {
+                    panelTop = y - height;
+                    inPanel = true;
+                }
                 first = false;
+            }
         }
+        if (place && inPanel)
+            m_panels.push_back({panelTop - inset, y + inset});
         return y + metrics::sidebarMargin;
     }
 
@@ -271,6 +323,9 @@ private:
     ScrollView* m_revealIn = nullptr;
     std::vector<Entry> m_entries;
     std::vector<SidebarItem*> m_items;
+    // Filled by measure(), which is const: the panels are what it found, not
+    // state the list keeps.
+    mutable std::vector<Panel> m_panels;
     int m_current = -1;
 };
 
