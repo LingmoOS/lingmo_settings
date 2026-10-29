@@ -1,3 +1,11 @@
+lingmo-settings (5.0.3+lingmo5u1) unstable; urgency=medium
+
+  * Draw a card a shade clearer than the sidebar's own background. The
+    window behind them is translucent and blurred, so a card drawn solid
+    read as a different material rather than the same glass.
+
+ -- Lingmo OS Team <team@lingmo.org>  Thu, 29 Oct 2026 14:10:00 +0800
+
 lingmo-settings (5.0.2+lingmo5u1) unstable; urgency=medium
 
   * Lay the About page out as the Qt version had it: the wordmark, a rule
