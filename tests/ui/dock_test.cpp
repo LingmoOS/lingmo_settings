@@ -10,6 +10,7 @@
 #include "input_test_support.h"
 #include "pagetest.h"
 #include "ui/slider.h"
+#include "ui/switch.h"
 #include "ui/test_input.h"
 #include "widgets/sliderrow.h"
 
@@ -53,10 +54,10 @@ TEST(DockPage, HasEveryControl)
 {
     PageFixture page("dock");
     EXPECT_EQ(page.count("settings::ImageSelectionItem"), 3);
-    EXPECT_EQ(page.count("settings::SliderRow"), 2);
+    EXPECT_EQ(page.count("settings::SliderRow"), 3);
     EXPECT_EQ(page.count("SegmentedControl"), 1);
     EXPECT_EQ(page.count("settings::NavigationItem"), 1);
-    EXPECT_EQ(page.count("settings::SwitchRow"), 1);
+    EXPECT_EQ(page.count("settings::SwitchRow"), 2);
 }
 
 TEST(DockPage, SizeStaysWhereItIsDragged)
@@ -69,4 +70,56 @@ TEST(DockPage, GlassEffectStaysWhereItIsDragged)
 {
     PageFixture page("dock");
     expectDragHolds(page, "dock:glass", 0.3);
+}
+
+TEST(DockPage, MagnificationFactorStaysWhereItIsDragged)
+{
+    PageFixture page("dock");
+    // The slider is only usable with the magnification on; a test host may
+    // have it off in its own shell.conf.
+    Window& window = page.window->window();
+    auto* toggle = findView<settings::SwitchRow>(window.contentView(), "dock:magnification");
+    ASSERT_NE(toggle, nullptr);
+    if (!toggle->isChecked()) {
+        const RectF control = toggle->control()->geometry();
+        TestInput::click(window, toggle->control()->mapToWindow({control.width / 2, control.height / 2}));
+    }
+    ASSERT_TRUE(toggle->isChecked());
+    expectDragHolds(page, "dock:magnification-factor", 0.7);
+}
+
+TEST(DockPage, TheMagnificationSwitchGatesItsSize)
+{
+    PageFixture page("dock");
+    Window& window = page.window->window();
+    auto* toggle = findView<settings::SwitchRow>(window.contentView(), "dock:magnification");
+    auto* size = findView<SliderRow>(window.contentView(), "dock:magnification-factor");
+    ASSERT_NE(toggle, nullptr);
+    ASSERT_NE(size, nullptr);
+    const bool on = toggle->isChecked();
+    EXPECT_EQ(on, size->slider()->isEnabled());
+    const double chosen = size->value();
+
+    // The switch turns the slider with it, keeping the size that was chosen.
+    const RectF control = toggle->control()->geometry();
+    TestInput::click(window, toggle->control()->mapToWindow({control.width / 2, control.height / 2}));
+    EXPECT_EQ(!on, toggle->isChecked());
+    EXPECT_EQ(toggle->isChecked(), size->slider()->isEnabled());
+    EXPECT_EQ(chosen, size->value());
+
+    TestInput::click(window, toggle->control()->mapToWindow({control.width / 2, control.height / 2}));
+    EXPECT_EQ(on, toggle->isChecked());
+    EXPECT_EQ(toggle->isChecked(), size->slider()->isEnabled());
+}
+
+TEST(DockPage, TheBounceSwitchTurnsOff)
+{
+    PageFixture page("dock");
+    Window& window = page.window->window();
+    auto* bounce = findView<settings::SwitchRow>(window.contentView(), "dock:bounce");
+    ASSERT_NE(bounce, nullptr);
+    const bool on = bounce->isChecked();
+    const RectF control = bounce->control()->geometry();
+    TestInput::click(window, bounce->control()->mapToWindow({control.width / 2, control.height / 2}));
+    EXPECT_EQ(!on, bounce->isChecked());
 }

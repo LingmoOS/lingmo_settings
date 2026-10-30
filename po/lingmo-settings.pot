@@ -853,6 +853,30 @@ msgstr ""
 #: src/pages/dock/dockpage.cpp
 msgid "More tinted"
 msgstr ""
+#: src/pages/dock/dockpage.cpp
+msgid "Magnification"
+msgstr ""
+
+#: src/pages/dock/dockpage.cpp
+msgid "Maximum magnification"
+msgstr ""
+
+#: src/pages/dock/dockpage.cpp
+msgid "Subtle"
+msgstr ""
+
+#: src/pages/dock/dockpage.cpp
+msgid "Large"
+msgstr ""
+
+#: src/pages/dock/dockpage.cpp
+msgid "Launch"
+msgstr ""
+
+#: src/pages/dock/dockpage.cpp
+msgid "Bounce on launch"
+msgstr ""
+
 
 #: src/pages/dock/dockpage.cpp
 msgid "Display mode"

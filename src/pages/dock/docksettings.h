@@ -32,6 +32,17 @@ public:
     bool minimizedArea() const { return m_minimizedArea; }
     void setMinimizedArea(bool enabled);
 
+    // The icons grow under the pointer.
+    bool magnification() const { return m_magnification; }
+    void setMagnification(bool enabled);
+    // The largest scale they grow to; 1 to 2.
+    double magnificationFactor() const { return m_magnificationFactor; }
+    void setMagnificationFactor(double factor);
+
+    // An application that is starting hops a few times.
+    bool bounceOnLaunch() const { return m_bounceOnLaunch; }
+    void setBounceOnLaunch(bool enabled);
+
 private:
     Lingmo::base::dbus::Proxy m_dock;
     int m_iconSize = 0;
@@ -39,6 +50,9 @@ private:
     int m_visibility = 0;
     double m_glassTint = 0.5;
     bool m_minimizedArea = true;
+    bool m_magnification = true;
+    double m_magnificationFactor = 1.5;
+    bool m_bounceOnLaunch = true;
 };
 
 } // namespace settings

@@ -847,6 +847,30 @@ msgstr "更透明"
 #: src/pages/dock/dockpage.cpp
 msgid "More tinted"
 msgstr "更不透明"
+#: src/pages/dock/dockpage.cpp
+msgid "Magnification"
+msgstr "放大"
+
+#: src/pages/dock/dockpage.cpp
+msgid "Maximum magnification"
+msgstr "最大放大倍数"
+
+#: src/pages/dock/dockpage.cpp
+msgid "Subtle"
+msgstr "轻微"
+
+#: src/pages/dock/dockpage.cpp
+msgid "Large"
+msgstr "明显"
+
+#: src/pages/dock/dockpage.cpp
+msgid "Launch"
+msgstr "启动"
+
+#: src/pages/dock/dockpage.cpp
+msgid "Bounce on launch"
+msgstr "启动时弹跳"
+
 
 #: src/pages/dock/dockpage.cpp
 msgid "Display mode"

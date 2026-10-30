@@ -66,6 +66,30 @@ public:
             m_settings.setIconSize(int(std::round(value)));
             size->setValue(m_settings.iconSize());
         };
+        // The magnification: its own switch, and how large the icons become
+        // under the pointer. A scale, 1 for none.
+        SwitchRow* magnification = sliders->addChild<SwitchRow>(tr("Magnification"));
+        magnification->setName("dock:magnification");
+        magnification->setChecked(m_settings.magnification());
+        SliderRow* magnificationSize = sliders->addChild<SliderRow>(tr("Maximum magnification"));
+        magnificationSize->setName("dock:magnification-factor");
+        magnificationSize->setCaptions(tr("Subtle"), tr("Large"));
+        magnificationSize->setRange(1, 2);
+        magnificationSize->setStepSize(0.05);
+        magnificationSize->setValue(m_settings.magnificationFactor());
+        magnificationSize->setSliderEnabled(m_settings.magnification());
+        // The dock reports no changes back, so the row learns the new value
+        // here; otherwise it returns to the old one once the move settles.
+        magnificationSize->onMoved = [this, magnificationSize](double value) {
+            m_settings.setMagnificationFactor(value);
+            magnificationSize->setValue(m_settings.magnificationFactor());
+        };
+        // Off, there is no size to choose: the slider is disabled with it.
+        magnification->onToggled = [this, magnificationSize](bool checked) {
+            m_settings.setMagnification(checked);
+            magnificationSize->setSliderEnabled(checked);
+        };
+
         SliderRow* glass = sliders->addChild<SliderRow>(tr("Glass effect"));
         glass->setName("dock:glass");
         glass->setCaptions(tr("More clear"), tr("More tinted"));
@@ -75,6 +99,13 @@ public:
             m_settings.setGlassTint(value);
             glass->setValue(m_settings.glassTint());
         };
+
+        Section* launch = content()->addChild<Section>(tr("Launch"));
+        Card* behaviour = launch->addChild<Card>(Card::Style::List);
+        SwitchRow* bounce = behaviour->addChild<SwitchRow>(tr("Bounce on launch"));
+        bounce->setName("dock:bounce");
+        bounce->setChecked(m_settings.bounceOnLaunch());
+        bounce->onToggled = [this](bool checked) { m_settings.setBounceOnLaunch(checked); };
 
         Section* mode = content()->addChild<Section>(tr("Display mode"));
         auto* visibility = mode->addChild<SegmentedControl>(

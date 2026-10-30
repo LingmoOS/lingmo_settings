@@ -23,6 +23,9 @@ DockSettings::DockSettings()
     m_visibility = int(shell.intValue("Dock/Visibility"));
     m_glassTint = std::clamp(shell.doubleValue("Dock/GlassTint", 0.5), 0.0, 1.0);
     m_minimizedArea = shell.boolValue("Dock/MinimizedArea", true);
+    m_magnification = shell.boolValue("Dock/Magnification", true);
+    m_magnificationFactor = std::clamp(shell.doubleValue("Dock/MagnificationFactor", 1.5), 1.0, 2.0);
+    m_bounceOnLaunch = shell.boolValue("Dock/BounceOnLaunch", true);
 }
 
 // Called on every slider move; none of these waits for the dock.
@@ -65,6 +68,31 @@ void DockSettings::setMinimizedArea(bool enabled)
         return;
     m_dock.send("setMinimizedArea", enabled);
     m_minimizedArea = enabled;
+}
+
+void DockSettings::setMagnification(bool enabled)
+{
+    if (enabled == m_magnification)
+        return;
+    m_dock.send("setMagnification", enabled);
+    m_magnification = enabled;
+}
+
+void DockSettings::setMagnificationFactor(double factor)
+{
+    factor = std::clamp(factor, 1.0, 2.0);
+    if (factor == m_magnificationFactor)
+        return;
+    m_dock.send("setMagnificationFactor", factor);
+    m_magnificationFactor = factor;
+}
+
+void DockSettings::setBounceOnLaunch(bool enabled)
+{
+    if (enabled == m_bounceOnLaunch)
+        return;
+    m_dock.send("setBounceOnLaunch", enabled);
+    m_bounceOnLaunch = enabled;
 }
 
 } // namespace settings
