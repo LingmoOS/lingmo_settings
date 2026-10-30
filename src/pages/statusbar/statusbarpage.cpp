@@ -6,6 +6,8 @@
 
 #include "base/i18n.h"
 #include "pages/statusbar/statusbarsettings.h"
+#include "ui/cell_layout.h"
+#include "ui/layout.h"
 #include "widgets/card.h"
 #include "widgets/sections.h"
 #include "widgets/sliderrow.h"
@@ -13,6 +15,7 @@
 #include "window/pagelist.h"
 #include "window/settingswindow.h"
 
+using namespace Lingmo::ui;
 using Lingmo::i18n::tr;
 
 namespace settings {
