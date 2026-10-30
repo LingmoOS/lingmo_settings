@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <optional>
 
 #include "base/event_loop.h"
 #include "base/i18n.h"
