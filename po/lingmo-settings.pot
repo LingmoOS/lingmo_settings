@@ -2491,3 +2491,27 @@ msgstr ""
 #: src/pages/about/aboutpage.cpp
 msgid "System Update"
 msgstr ""
+
+#: src/pages/statusbar/statusbarpage.cpp
+msgid "Top Bar"
+msgstr ""
+
+#: src/pages/statusbar/statusbarpage.cpp
+msgid "Blur"
+msgstr ""
+
+#: src/pages/statusbar/statusbarpage.cpp
+msgid "Transparency"
+msgstr ""
+
+#: src/pages/statusbar/statusbarpage.cpp
+msgid "Strong"
+msgstr ""
+
+#: src/pages/statusbar/statusbarpage.cpp
+msgid "More solid"
+msgstr ""
+
+#: src/window/pagelist.cpp
+msgid "top bar, panel, blur, transparency"
+msgstr ""

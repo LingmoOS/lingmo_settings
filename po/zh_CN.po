@@ -2484,3 +2484,27 @@ msgstr "CPU"
 #: src/pages/about/aboutpage.cpp
 msgid "System Update"
 msgstr "系统更新"
+
+#: src/pages/statusbar/statusbarpage.cpp
+msgid "Top Bar"
+msgstr "顶栏"
+
+#: src/pages/statusbar/statusbarpage.cpp
+msgid "Blur"
+msgstr "模糊"
+
+#: src/pages/statusbar/statusbarpage.cpp
+msgid "Transparency"
+msgstr "透明度"
+
+#: src/pages/statusbar/statusbarpage.cpp
+msgid "Strong"
+msgstr "强烈"
+
+#: src/pages/statusbar/statusbarpage.cpp
+msgid "More solid"
+msgstr "更不透明"
+
+#: src/window/pagelist.cpp
+msgid "top bar, panel, blur, transparency"
+msgstr "顶栏, 面板, 模糊, 透明度"
