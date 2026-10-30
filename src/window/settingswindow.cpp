@@ -402,11 +402,9 @@ void SettingsWindow::updateBackground()
     // FishUI's translucent window did.
     if (m_window->backgroundGlassAvailable()) {
         m_window->setBackgroundColor(Color{0, 0, 0, 0});
+        // GlassMaterial's defaults are FishUI's glass, tinted 12%: the
+        // sidebar's 70% tint over it keeps the desktop's colours through.
         GlassMaterial glass;
-        glass.blurSigma = 4.4;
-        glass.displacement = 21.6;
-        glass.chroma = 0.03;
-        glass.tintAlpha = 0.55;
         if (theme.darkMode) {
             glass.tintRed = glass.tintGreen = 0.18;
             glass.tintBlue = 0.20;
