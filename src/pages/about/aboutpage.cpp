@@ -177,8 +177,10 @@ private:
     // Two rows of four: what the system is made of.
     void addSystem()
     {
-        Card* card = content()->addChild<Card>(Card::Style::List);
+        // A padded card: a grid is not a list row and takes the card's padding.
+        Card* card = content()->addChild<Card>(Card::Style::Padded);
         GridLayout* grid = card->addChild<GridLayout>(4);
+        grid->setLayoutHints({.fillWidth = true});
         grid->setColumnSpacing(metrics::l);
         grid->setRowSpacing(metrics::m);
 
