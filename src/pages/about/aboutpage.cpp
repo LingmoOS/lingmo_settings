@@ -11,6 +11,7 @@
 #include "lingmo/appearance/appearance.h"
 #include "pages/about/aboutinfo.h"
 #include "ui/cell_layout.h"
+#include "ui/image_view.h"
 #include "ui/label.h"
 #include "ui/painter.h"
 #include "ui/theme.h"
@@ -42,13 +43,15 @@ protected:
 };
 
 // The current wallpaper, rounded and framed: the desktop's own picture is the
-// most recognisable thing on this page.
+// most recognisable thing on this page. A wallpaper is usually a photo, so the
+// picture is an ImageView (SVG files included), not the SVG-only Picture.
 class WallpaperThumbnail : public View
 {
 public:
     explicit WallpaperThumbnail(std::string path)
     {
-        m_picture = addChild<Picture>(std::move(path));
+        m_picture = addChild<ImageView>(std::move(path));
+        m_picture->setFillMode(ImageView::FillMode::PreserveAspectCrop);
         m_picture->setCornerRadius(Theme::current().bigRadius);
     }
 
@@ -67,7 +70,7 @@ protected:
     }
 
 private:
-    Picture* m_picture;
+    ImageView* m_picture;
 };
 
 // One cell of the system grid: what it is above, the value below. The grid is
@@ -77,6 +80,9 @@ class InfoCell : public View
 public:
     InfoCell(std::string key, std::string value)
     {
+        // The grid's columns are as wide as their cells ask to be; without
+        // this a cell takes its preferred width, which is nothing.
+        setLayoutHints({.fillWidth = true});
         m_key = addChild<Label>(std::move(key));
         m_key->setColor(Theme::current().disabledText);
         m_value = addChild<Label>(std::move(value));

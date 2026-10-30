@@ -394,12 +394,34 @@ void SettingsWindow::updateBackground()
 {
     const Theme& theme = Theme::current();
     const bool active = m_window->isActive();
-    m_window->setBackgroundColor(
-        color(active ? ColorId::TranslucentWindowBackground : ColorId::TranslucentWindowBackgroundInactive));
+    const SizeF size = m_window->size();
+    // The sidebar is a 70% tint over the window's background. Painting the
+    // window background at 0.8 below it makes the tint composite to nearly
+    // opaque, so over a compositor that draws glass the background stays
+    // transparent and the sidebar tints the blurred desktop instead, as
+    // FishUI's translucent window did.
+    if (m_window->backgroundGlassAvailable()) {
+        m_window->setBackgroundColor(Color{0, 0, 0, 0});
+        GlassMaterial glass;
+        glass.blurSigma = 4.4;
+        glass.displacement = 21.6;
+        glass.chroma = 0.03;
+        glass.tintAlpha = 0.55;
+        if (theme.darkMode) {
+            glass.tintRed = glass.tintGreen = 0.18;
+            glass.tintBlue = 0.20;
+        }
+        m_window->setBackgroundGlass(glass);
+        m_window->setTranslucentSubpixelText(false);
+    } else {
+        m_window->setBackgroundGlass(std::nullopt);
+        m_window->setBackgroundColor(
+            color(active ? ColorId::TranslucentWindowBackground : ColorId::TranslucentWindowBackgroundInactive));
+        m_window->setTranslucentSubpixelText(true);
+    }
     m_root->backdropBase = theme.background;
     if (m_root->backdrop)
         m_root->backdrop->setBaseColor(theme.background);
-    const SizeF size = m_window->size();
     m_window->setBackgroundBlur({0, 0, size.width, size.height}, theme.windowRadius);
 }
 
