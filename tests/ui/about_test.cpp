@@ -11,9 +11,8 @@ TEST(AboutPage, ShowsTheSystemRows)
 {
     PageFixture page("about");
     EXPECT_NE(page.dump().find("\"page:about\""), std::string::npos);
-    // PC name and OS version, plus the model when the firmware names one.
-    const int modelRows = settings::about::computerModel().empty() ? 0 : 1;
-    EXPECT_EQ(page.count("settings::InfoRow"), 2 + modelRows);
+    // PC name and OS version; the model moved into the system card's resources.
+    EXPECT_EQ(page.count("settings::InfoRow"), 2);
     EXPECT_NE(page.dump().find("InfoCell"), std::string::npos);
     EXPECT_NE(page.dump().find("\"about:copy-info\""), std::string::npos);
     EXPECT_NE(page.dump().find("\"about:edit-pc-name\""), std::string::npos);

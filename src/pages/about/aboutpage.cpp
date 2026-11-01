@@ -101,8 +101,7 @@ private:
     Frame* m_frame = nullptr;
 };
 
-// One cell of the system grid: what it is above, the value below. The grid is
-// two rows of four, so the label cannot sit beside the value as in a row.
+// One fact in the system card: what it is above, the value below.
 class InfoCell : public View
 {
 public:
@@ -140,6 +139,16 @@ protected:
 private:
     Label* m_key;
     Label* m_value;
+};
+
+// A quiet rule between the software and hardware groups of the system card.
+class Divider : public View
+{
+protected:
+    void paint(Painter& painter) override
+    {
+        painter.fillRect({0, 0, geometry().width, 1}, Theme::current().disabledText.withAlpha(0.16));
+    }
 };
 
 // The host name systemd accepts: letters, digits, hyphen-separated labels,
@@ -370,9 +379,6 @@ private:
         edit->setToolTip(tr("Edit computer name"));
         edit->onClicked = [this] { editHostName(); };
         card->addChild<InfoRow>(tr("OS Version"), about::prettyProductName());
-        const std::string model = about::computerModel();
-        if (!model.empty())
-            card->addChild<InfoRow>(tr("Computer Model"), model);
     }
 
     void editHostName()
@@ -392,28 +398,42 @@ private:
         m_hostnameDialog->show();
     }
 
-    // Two rows of four: what the system is made of.
+    // Software above a rule, the processor across the card, then the resources
+    // below it. The four-column grid this replaces squeezed the kernel and CPU
+    // into three lines and left its last cell empty.
     void addSystem()
     {
         Section* section = content()->addChild<Section>(tr("System"));
-        // A padded card: a grid is not a list row and takes the card's padding.
         Card* card = section->addChild<Card>(Card::Style::Padded);
-        GridLayout* grid = card->addChild<GridLayout>(4);
-        grid->setLayoutHints({.fillWidth = true});
-        grid->setColumnSpacing(metrics::l);
-        grid->setRowSpacing(metrics::m);
+        ColumnLayout* groups = card->addChild<ColumnLayout>();
+        groups->setSpacing(metrics::m);
+        groups->setLayoutHints({.fillWidth = true});
 
-        grid->addChild<InfoCell>(tr("Debian Version"), about::debianVersion());
-        grid->addChild<InfoCell>(tr("Linux Kernel Version"), "Linux " + about::kernelVersion());
-        grid->addChild<InfoCell>(tr("Lingmo UI Version"), about::uiVersion());
-        grid->addChild<InfoCell>(tr("System Type"), about::architecture());
+        GridLayout* versions = groups->addChild<GridLayout>(2);
+        versions->setLayoutHints({.fillWidth = true});
+        versions->setColumnSpacing(metrics::xl);
+        versions->setRowSpacing(metrics::m);
+        versions->addChild<InfoCell>(tr("Debian Version"), about::debianVersion());
+        versions->addChild<InfoCell>(tr("Linux Kernel Version"), "Linux " + about::kernelVersion());
+        versions->addChild<InfoCell>(tr("Lingmo UI Version"), about::uiVersion());
+        versions->addChild<InfoCell>(tr("System Type"), about::architecture());
 
-        grid->addChild<InfoCell>(tr("RAM"), about::memorySize());
-        grid->addChild<InfoCell>(tr("Disk"), about::internalStorage());
-        grid->addChild<InfoCell>(tr("CPU"), about::processor());
-        // The eighth cell stays empty, so the second row keeps the first one's
-        // four columns.
-        grid->addChild<View>();
+        groups->addChild<Divider>()->setLayoutHints({.fillWidth = true, .preferredHeight = 1});
+
+        groups->addChild<InfoCell>(tr("CPU"), about::processor())
+                ->setLayoutHints({.fillWidth = true});
+
+        groups->addChild<Divider>()->setLayoutHints({.fillWidth = true, .preferredHeight = 1});
+
+        const std::string model = about::computerModel();
+        GridLayout* resources = groups->addChild<GridLayout>(model.empty() ? 2 : 3);
+        resources->setLayoutHints({.fillWidth = true});
+        resources->setColumnSpacing(metrics::xl);
+        resources->setRowSpacing(metrics::m);
+        resources->addChild<InfoCell>(tr("RAM"), about::memorySize());
+        resources->addChild<InfoCell>(tr("Disk"), about::internalStorage());
+        if (!model.empty())
+            resources->addChild<InfoCell>(tr("Computer Model"), model);
     }
 
     void addActions()
