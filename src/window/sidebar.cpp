@@ -281,35 +281,18 @@ protected:
     }
 
     // One panel per category, behind its entries and under them in the stack:
-    // the list paints first, its children over it. The fill runs light to dark,
-    // with a bright top edge and a soft shadow, so the panel reads as glass
-    // over the sidebar in both themes.
+    // the list paints first, its children over it. The fill is flat; only the
+    // shadow lifts it from the sidebar.
     void paint(Painter& painter) override
     {
         const Theme& theme = Theme::current();
         const double width = geometry().width - 2 * metrics::sidebarMargin;
-        const Color top = color(SettingsColor::SidebarPanelTop);
-        const Color bottom = color(SettingsColor::SidebarPanelBottom);
-        const Color border = color(SettingsColor::SidebarPanelBorder);
-        const Color highlight = color(SettingsColor::SidebarPanelHighlight);
-        const Color gloss = color(SettingsColor::SidebarPanelGloss);
-        const Color bottomEdge = color(SettingsColor::SidebarPanelBottomEdge);
+        const Color fill = color(SettingsColor::SidebarPanelFill);
         const Color shadow = color(SettingsColor::SidebarPanelShadow);
         for (const Panel& panel : m_panels) {
             const RectF rect{metrics::sidebarMargin, panel.top, width, panel.bottom - panel.top};
             painter.drawShadow(rect, theme.mediumRadius, theme.darkMode ? 22 : 12, shadow, {0, 2});
-            painter.fillRoundedRect(rect, theme.mediumRadius, LinearGradient::vertical(rect, top, bottom));
-            painter.save();
-            painter.clipRoundedRect(rect, theme.mediumRadius);
-            const RectF glossRect{rect.x, rect.y, rect.width, std::min(rect.height * 0.5, 40.0)};
-            painter.fillRoundedRect(glossRect, 0, LinearGradient::vertical(glossRect, gloss, gloss.withAlpha(0)));
-            painter.fillRect({rect.x + theme.mediumRadius, rect.y, rect.width - 2 * theme.mediumRadius, 1},
-                             highlight);
-            painter.fillRect({rect.x + theme.mediumRadius, rect.bottom() - 1,
-                              rect.width - 2 * theme.mediumRadius, 1},
-                             bottomEdge);
-            painter.restore();
-            painter.drawSmoothRectangle(rect, theme.mediumRadius, Color {0, 0, 0, 0}, 1, border);
+            painter.fillRoundedRect(rect, theme.mediumRadius, fill);
         }
     }
 

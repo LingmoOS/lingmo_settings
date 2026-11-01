@@ -22,16 +22,11 @@ void addSettingsColors(ColorMixer& mixer, const Theme& theme)
     mixer[SettingsColor::SidebarItemCurrent] = withAlpha(ColorId::Highlight, 1.0);
     mixer[SettingsColor::SidebarIconTile] = dark ? Color::rgb(0x596273) : Color::rgb(0x8B95A7);
     mixer[SettingsColor::SidebarItemHovered] = withAlpha(ColorId::Text, dark ? 0.065 : 0.05);
-    // The category panels are glass over the sidebar: a lighter top, a
-    // slightly deeper bottom, a bright edge and a soft shadow below.
-    mixer[SettingsColor::SidebarPanelTop] =
-        withAlpha(dark ? lighter(ColorId::SecondBackground, 1.75) : lighter(ColorId::SecondBackground, 1.03),
-                  dark ? 0.82 : 0.66);
-    mixer[SettingsColor::SidebarPanelBottom] = withAlpha(ColorId::SecondBackground, dark ? 0.5 : 0.46);
-    mixer[SettingsColor::SidebarPanelBorder] = withAlpha(ColorId::Text, dark ? 0.18 : 0.06);
-    mixer[SettingsColor::SidebarPanelHighlight] = kWhite.withAlpha(dark ? 0.16 : 0.55);
-    mixer[SettingsColor::SidebarPanelGloss] = kWhite.withAlpha(dark ? 0.07 : 0.15);
-    mixer[SettingsColor::SidebarPanelBottomEdge] = withAlpha(ColorId::Text, dark ? 0.16 : 0.04);
+    // A flat panel over the sidebar; the shadow gives it depth without a
+    // border or a gradient.
+    mixer[SettingsColor::SidebarPanelFill] =
+        withAlpha(dark ? lighter(ColorId::SecondBackground, 1.35) : lighter(ColorId::SecondBackground, 1.03),
+                  dark ? 0.72 : 0.62);
     mixer[SettingsColor::SidebarPanelShadow] = kBlack.withAlpha(dark ? 0.42 : 0.1);
 
     mixer[SettingsColor::RowHighlight] = withAlpha(ColorId::Text, dark ? 0.05 : 0.15);

@@ -17,12 +17,7 @@ enum class SettingsColor : uint16_t {
     SidebarItemCurrent,
     SidebarIconTile,
     SidebarItemHovered,
-    SidebarPanelTop,
-    SidebarPanelBottom,
-    SidebarPanelBorder,
-    SidebarPanelHighlight,
-    SidebarPanelGloss,
-    SidebarPanelBottomEdge,
+    SidebarPanelFill,
     SidebarPanelShadow,
 
     RowHighlight,
