@@ -2595,3 +2595,48 @@ msgstr ""
 msgid "Edit computer name"
 msgstr ""
 
+
+#: src/pages/about/aboutpage.cpp
+msgid "More system information"
+msgstr ""
+
+#: src/pages/about/aboutpage.cpp
+msgid "System details"
+msgstr ""
+
+#: src/pages/about/aboutpage.cpp
+msgid "Software"
+msgstr ""
+
+#: src/pages/about/aboutpage.cpp
+msgid "Hardware"
+msgstr ""
+
+#: src/pages/about/aboutpage.cpp
+msgid "Kernel Build"
+msgstr ""
+
+#: src/pages/about/aboutpage.cpp
+msgid "Session"
+msgstr ""
+
+#: src/pages/about/aboutpage.cpp
+msgid "Uptime"
+msgstr ""
+
+#: src/pages/about/aboutpage.cpp
+msgid "Firmware"
+msgstr ""
+
+#: src/pages/about/aboutinfo.cpp
+msgid "{days} days {hours} hours"
+msgstr ""
+
+#: src/pages/about/aboutinfo.cpp
+msgid "{hours} hours {minutes} minutes"
+msgstr ""
+
+#: src/pages/about/aboutinfo.cpp
+msgid "{minutes} minutes"
+msgstr ""
+

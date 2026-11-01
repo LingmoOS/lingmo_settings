@@ -15,6 +15,7 @@ TEST(AboutPage, ShowsTheSystemRows)
     EXPECT_EQ(page.count("settings::InfoRow"), 2);
     EXPECT_NE(page.dump().find("InfoCell"), std::string::npos);
     EXPECT_NE(page.dump().find("\"about:copy-info\""), std::string::npos);
+    EXPECT_NE(page.dump().find("\"about:more-info\""), std::string::npos);
     EXPECT_NE(page.dump().find("\"about:edit-pc-name\""), std::string::npos);
 }
 

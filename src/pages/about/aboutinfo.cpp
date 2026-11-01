@@ -7,6 +7,7 @@
 #include <cctype>
 #include <cmath>
 #include <cstdio>
+#include <cstdlib>
 #include <fstream>
 #include <sstream>
 #include <sys/statvfs.h>
@@ -148,6 +149,58 @@ std::string kernelVersion()
 {
     utsname system;
     return uname(&system) == 0 ? system.release : std::string();
+}
+
+std::string kernelBuild()
+{
+    utsname system;
+    return uname(&system) == 0 ? system.version : std::string();
+}
+
+std::string uptime()
+{
+    std::ifstream file("/proc/uptime");
+    double seconds = 0;
+    if (!(file >> seconds))
+        return {};
+    const long minutes = std::lround(seconds / 60);
+    const long days = minutes / (24 * 60);
+    const long hours = (minutes / 60) % 24;
+    if (days > 0) {
+        // TRANSLATORS: a machine's uptime, such as "3 days 4 hours".
+        return format(tr("{days} days {hours} hours"),
+                      {{"days", std::to_string(days)}, {"hours", std::to_string(hours)}});
+    }
+    if (hours > 0) {
+        // TRANSLATORS: a machine's uptime, such as "4 hours 12 minutes".
+        return format(tr("{hours} hours {minutes} minutes"),
+                      {{"hours", std::to_string(hours)}, {"minutes", std::to_string(minutes % 60)}});
+    }
+    // TRANSLATORS: a machine's uptime under an hour, such as "12 minutes".
+    return format(tr("{minutes} minutes"), {{"minutes", std::to_string(minutes)}});
+}
+
+std::string sessionType()
+{
+    const char* typeValue = getenv("XDG_SESSION_TYPE");
+    const char* desktopValue = getenv("XDG_CURRENT_DESKTOP");
+    std::string type = typeValue ? typeValue : "";
+    const std::string desktop = desktopValue ? desktopValue : "";
+    if (!desktop.empty()) {
+        if (!type.empty())
+            type += " · ";
+        type += desktop;
+    }
+    return type;
+}
+
+std::string firmwareVersion()
+{
+    const std::string version = firmwareString("/sys/class/dmi/id/bios_version");
+    const std::string date = firmwareString("/sys/class/dmi/id/bios_date");
+    if (version.empty())
+        return {};
+    return date.empty() ? version : version + " (" + date + ")";
 }
 
 std::string processor()

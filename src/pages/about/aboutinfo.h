@@ -23,6 +23,14 @@ std::string computerModel(const std::string& vendor, const std::string& family, 
 // As Qt names it: x86_64, arm64, i386.
 std::string architecture();
 std::string kernelVersion();
+// The kernel's own build string, from uname().version.
+std::string kernelBuild();
+// How long the machine has been up, in the largest units that fit.
+std::string uptime();
+// The session type and desktop the page is running in, when they are set.
+std::string sessionType();
+// The firmware version and date, when the firmware tables provide them.
+std::string firmwareVersion();
 // "<model> x <count>" from /proc/cpuinfo.
 std::string processor();
 std::string memorySize();

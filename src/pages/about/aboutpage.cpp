@@ -2,11 +2,13 @@
 // SPDX-FileCopyrightText: 2026 LingmoOS Contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+#include <algorithm>
 #include <chrono>
 #include <functional>
 #include <memory>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "base/dbus.h"
 #include "base/event_loop.h"
@@ -149,6 +151,49 @@ protected:
     {
         painter.fillRect({0, 0, geometry().width, 1}, Theme::current().disabledText.withAlpha(0.16));
     }
+};
+
+// A small line of text that behaves as a link.
+class TextLink : public View
+{
+public:
+    explicit TextLink(std::string text)
+    {
+        m_label = addChild<Label>(std::move(text));
+        m_label->setFontSize(metrics::points(9));
+        m_label->setColor(ColorId::Highlight);
+        setCursorShape(CursorShape::Pointer);
+    }
+
+    std::function<void()> onClicked;
+
+    SizeF sizeHint() const override { return m_label->sizeHint(); }
+    bool acceptsPointer() const override { return true; }
+
+protected:
+    void layout() override
+    {
+        m_label->setGeometry({0, 0, geometry().width, m_label->heightForWidth(geometry().width)});
+    }
+
+    void pointerPress(const PointerEvent& event) override
+    {
+        if (event.button == MouseButton::Left)
+            m_pressed = true;
+    }
+
+    void pointerRelease(const PointerEvent& event) override
+    {
+        if (!m_pressed)
+            return;
+        m_pressed = false;
+        if (localRect().contains(event.position) && onClicked)
+            onClicked();
+    }
+
+private:
+    Label* m_label = nullptr;
+    bool m_pressed = false;
 };
 
 // The host name systemd accepts: letters, digits, hyphen-separated labels,
@@ -310,6 +355,59 @@ private:
     bool m_waiting = false;
 };
 
+// The fuller report behind System's "More system information": the same
+// facts as the page plus the kernel build, uptime, session and firmware.
+class SystemDetailsDialog : public FormDialog
+{
+public:
+    explicit SystemDetailsDialog(SettingsWindow& parent)
+        : FormDialog(parent, tr("System details"), 520)
+    {
+        addGroup(tr("Device"), {
+                {tr("PC Name"), about::hostName()},
+                {tr("OS Version"), about::prettyProductName()},
+                {tr("Computer Model"), about::computerModel()},
+        });
+        addGroup(tr("Software"), {
+                {tr("Debian Version"), about::debianVersion()},
+                {tr("Linux Kernel Version"), "Linux " + about::kernelVersion()},
+                {tr("Kernel Build"), about::kernelBuild()},
+                {tr("Lingmo UI Version"), about::uiVersion()},
+                {tr("System Type"), about::architecture()},
+                {tr("Session"), about::sessionType()},
+                {tr("Uptime"), about::uptime()},
+        });
+        addGroup(tr("Hardware"), {
+                {tr("CPU"), about::processor()},
+                {tr("RAM"), about::memorySize()},
+                {tr("Disk"), about::internalStorage()},
+                {tr("Firmware"), about::firmwareVersion()},
+        });
+
+        RowLayout* buttons = addButtonRow();
+        DialogButton* close = buttons->addChild<DialogButton>(tr("Close"));
+        close->onClicked = [this] { requestClose(); };
+    }
+
+private:
+    void addGroup(const std::string& title, std::vector<std::pair<std::string, std::string>> entries)
+    {
+        entries.erase(std::remove_if(entries.begin(), entries.end(),
+                                     [](const auto& entry) { return entry.second.empty(); }),
+                      entries.end());
+        if (entries.empty())
+            return;
+
+        content()->addChild<SectionLabel>(title)->setLayoutHints({.fillWidth = true});
+        GridLayout* grid = content()->addChild<GridLayout>(2);
+        grid->setLayoutHints({.fillWidth = true});
+        grid->setColumnSpacing(metrics::xl);
+        grid->setRowSpacing(metrics::m);
+        for (const auto& [key, value] : entries)
+            grid->addChild<InfoCell>(key, value);
+    }
+};
+
 class AboutPage : public Page
 {
 public:
@@ -434,6 +532,22 @@ private:
         resources->addChild<InfoCell>(tr("Disk"), about::internalStorage());
         if (!model.empty())
             resources->addChild<InfoCell>(tr("Computer Model"), model);
+
+        TextLink* more = section->addChild<TextLink>(tr("More system information"));
+        more->setName("about:more-info");
+        more->onClicked = [this] { openDetails(); };
+    }
+
+    void openDetails()
+    {
+        if (m_detailsDialog)
+            return;
+        m_detailsDialog = std::make_unique<SystemDetailsDialog>(settingsWindow());
+        m_detailsDialog->onClosed = [this] {
+            std::shared_ptr<SystemDetailsDialog> closing(m_detailsDialog.release());
+            base::EventLoop::current()->post([closing] {});
+        };
+        m_detailsDialog->show();
     }
 
     void addActions()
@@ -481,6 +595,7 @@ private:
     std::string m_logoPath;
     InfoRow* m_pcName = nullptr;
     std::unique_ptr<EditHostnameDialog> m_hostnameDialog;
+    std::unique_ptr<SystemDetailsDialog> m_detailsDialog;
     StandardButton* m_copy = nullptr;
     base::Timer m_copyReset;
     Lingmo::appearance::Appearance m_appearance;

@@ -2588,3 +2588,48 @@ msgstr "无法修改计算机名称。"
 msgid "Edit computer name"
 msgstr "编辑计算机名称"
 
+
+#: src/pages/about/aboutpage.cpp
+msgid "More system information"
+msgstr "更多系统信息"
+
+#: src/pages/about/aboutpage.cpp
+msgid "System details"
+msgstr "系统详细信息"
+
+#: src/pages/about/aboutpage.cpp
+msgid "Software"
+msgstr "软件"
+
+#: src/pages/about/aboutpage.cpp
+msgid "Hardware"
+msgstr "硬件"
+
+#: src/pages/about/aboutpage.cpp
+msgid "Kernel Build"
+msgstr "内核构建版本"
+
+#: src/pages/about/aboutpage.cpp
+msgid "Session"
+msgstr "会话"
+
+#: src/pages/about/aboutpage.cpp
+msgid "Uptime"
+msgstr "运行时间"
+
+#: src/pages/about/aboutpage.cpp
+msgid "Firmware"
+msgstr "固件"
+
+#: src/pages/about/aboutinfo.cpp
+msgid "{days} days {hours} hours"
+msgstr "{days} 天 {hours} 小时"
+
+#: src/pages/about/aboutinfo.cpp
+msgid "{hours} hours {minutes} minutes"
+msgstr "{hours} 小时 {minutes} 分钟"
+
+#: src/pages/about/aboutinfo.cpp
+msgid "{minutes} minutes"
+msgstr "{minutes} 分钟"
+
