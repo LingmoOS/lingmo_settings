@@ -267,7 +267,6 @@ private:
         };
         line(tr("PC Name"), about::hostName());
         line(tr("Computer Model"), about::computerModel());
-        line(tr("OS Version"), about::prettyProductName());
         line(tr("Debian Version"), about::debianVersion());
         line(tr("Linux Kernel Version"), about::kernelVersion());
         line(tr("Lingmo UI Version"), about::uiVersion());
