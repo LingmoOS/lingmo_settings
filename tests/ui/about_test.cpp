@@ -11,10 +11,11 @@ TEST(AboutPage, ShowsTheSystemRows)
 {
     PageFixture page("about");
     EXPECT_NE(page.dump().find("\"page:about\""), std::string::npos);
-    // Version, type, kernel, processor, memory and storage all have values
-    // here; the model row depends on the machine's firmware.
+    // PC name and OS version, plus the model when the firmware names one.
     const int modelRows = settings::about::computerModel().empty() ? 0 : 1;
-    EXPECT_EQ(page.count("settings::InfoRow"), 6 + modelRows);
+    EXPECT_EQ(page.count("settings::InfoRow"), 2 + modelRows);
+    EXPECT_NE(page.dump().find("InfoCell"), std::string::npos);
+    EXPECT_NE(page.dump().find("\"about:copy-info\""), std::string::npos);
 }
 
 TEST(AboutPage, FormatsSizesAsTheQtVersionDid)

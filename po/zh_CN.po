@@ -2538,3 +2538,28 @@ msgstr "天气城市"
 msgid "City name"
 msgstr "城市名称"
 
+
+#: src/pages/about/aboutpage.cpp
+msgid "Device"
+msgstr "设备"
+
+#: src/pages/about/aboutpage.cpp
+msgid "Support"
+msgstr "支持"
+
+#: src/pages/about/aboutpage.cpp
+msgid "Computer Model"
+msgstr "计算机型号"
+
+#: src/pages/about/aboutpage.cpp
+msgid "Copy System Information"
+msgstr "复制系统信息"
+
+#: src/pages/about/aboutpage.cpp
+msgid "Copied"
+msgstr "已复制"
+
+
+#: src/pages/about/aboutpage.cpp
+msgid "Lingmo OS"
+msgstr "Lingmo OS"

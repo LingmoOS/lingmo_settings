@@ -2545,3 +2545,28 @@ msgstr ""
 msgid "City name"
 msgstr ""
 
+
+#: src/pages/about/aboutpage.cpp
+msgid "Device"
+msgstr ""
+
+#: src/pages/about/aboutpage.cpp
+msgid "Support"
+msgstr ""
+
+#: src/pages/about/aboutpage.cpp
+msgid "Computer Model"
+msgstr ""
+
+#: src/pages/about/aboutpage.cpp
+msgid "Copy System Information"
+msgstr ""
+
+#: src/pages/about/aboutpage.cpp
+msgid "Copied"
+msgstr ""
+
+
+#: src/pages/about/aboutpage.cpp
+msgid "Lingmo OS"
+msgstr ""

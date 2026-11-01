@@ -2,15 +2,18 @@
 // SPDX-FileCopyrightText: 2026 LingmoOS Contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+#include <chrono>
 #include <memory>
 #include <string>
 #include <utility>
 
 #include "base/i18n.h"
 #include "base/process.h"
+#include "base/timer.h"
 #include "lingmo/appearance/appearance.h"
 #include "pages/about/aboutinfo.h"
 #include "ui/cell_layout.h"
+#include "ui/clipboard.h"
 #include "ui/image_view.h"
 #include "ui/label.h"
 #include "ui/painter.h"
@@ -20,6 +23,8 @@
 #include "widgets/listrow.h"
 #include "widgets/metrics.h"
 #include "widgets/picture.h"
+#include "widgets/sections.h"
+#include "widgets/standardbutton.h"
 #include "window/page.h"
 #include "window/pagelist.h"
 
@@ -38,7 +43,7 @@ protected:
     void paint(Painter& painter) override
     {
         painter.drawVerticalLine(geometry().width / 2, 0, geometry().height,
-                                 Theme::current().disabledText.withAlpha(0.5), 2);
+                                 Theme::current().disabledText.withAlpha(0.28), 1);
     }
 };
 
@@ -53,24 +58,39 @@ public:
         m_picture = addChild<ImageView>(std::move(path));
         m_picture->setFillMode(ImageView::FillMode::PreserveAspectCrop);
         m_picture->setCornerRadius(Theme::current().bigRadius);
+        m_frame = addChild<Frame>();
     }
 
 protected:
     void layout() override
     {
         m_picture->setGeometry(localRect());
+        m_frame->setGeometry(localRect());
     }
 
     void paint(Painter& painter) override
     {
-        // Drawn over the picture: the frame sits inside the outline, as the
-        // border of the device picture it replaces did.
-        painter.drawSmoothRectangle(localRect(), Theme::current().bigRadius,
-                                    Color::fromArgb(0x00000000), 5, Theme::current().text);
+        const Theme& theme = Theme::current();
+        // The shadow lifts the picture off the card; the frame is drawn by a
+        // child after the picture, so its hairline stays visible.
+        painter.drawShadow(localRect(), theme.bigRadius, 18,
+                           Color {0, 0, 0, uint8_t(theme.darkMode ? 90 : 38)}, {0, 4});
     }
 
 private:
-    ImageView* m_picture;
+    class Frame : public View
+    {
+    protected:
+        void paint(Painter& painter) override
+        {
+            const Theme& theme = Theme::current();
+            painter.drawSmoothRectangle(localRect(), theme.bigRadius, Color {0, 0, 0, 0}, 1,
+                                        theme.text.withAlpha(0.18));
+        }
+    };
+
+    ImageView* m_picture = nullptr;
+    Frame* m_frame = nullptr;
 };
 
 // One cell of the system grid: what it is above, the value below. The grid is
@@ -85,8 +105,11 @@ public:
         setLayoutHints({.fillWidth = true});
         m_key = addChild<Label>(std::move(key));
         m_key->setColor(Theme::current().disabledText);
+        m_key->setFontSize(metrics::points(9));
         m_value = addChild<Label>(std::move(value));
         m_value->setWrap(true);
+        m_value->setFontSize(metrics::points(10));
+        m_value->setWeight(500);
     }
 
 protected:
@@ -144,41 +167,57 @@ private:
         return dataPath(Theme::current().darkMode ? "images/logo-dark.svg" : "images/logo-light.svg");
     }
 
-    // The wordmark, the rule, and the wallpaper the session is showing.
+    // The wordmark, the rule, and the wallpaper the session is showing, under
+    // the product name and the machine's model.
     void addBrand()
     {
-        RowLayout* brand = content()->addChild<RowLayout>();
+        Card* hero = content()->addChild<Card>();
+        RowLayout* brand = hero->addChild<RowLayout>();
         brand->setSpacing(metrics::xl);
-        LayoutHints hints{.horizontalAlignment = Alignment::Center};
-        hints.margins.top = metrics::l;
-        brand->setLayoutHints(hints);
+        brand->setLayoutHints({.horizontalAlignment = Alignment::Center});
 
         m_logoPath = logoForTheme();
         m_logo = brand->addChild<Picture>(m_logoPath);
-        m_logo->setLayoutHints({.preferredWidth = 250, .preferredHeight = 96,
+        m_logo->setLayoutHints({.preferredWidth = 220, .preferredHeight = 84,
                                 .verticalAlignment = Alignment::Center});
 
         VerticalRule* rule = brand->addChild<VerticalRule>();
-        rule->setLayoutHints({.preferredWidth = 2, .preferredHeight = 20,
+        rule->setLayoutHints({.preferredWidth = 1, .preferredHeight = 56,
                               .verticalAlignment = Alignment::Center});
 
         WallpaperThumbnail* thumbnail = brand->addChild<WallpaperThumbnail>(m_appearance.wallpaper());
-        thumbnail->setLayoutHints({.preferredWidth = 174, .preferredHeight = 104,
+        thumbnail->setLayoutHints({.preferredWidth = 160, .preferredHeight = 96,
                                    .verticalAlignment = Alignment::Center});
+
+        const std::string product = about::prettyProductName();
+        Label* productLabel =
+                hero->addChild<Label>(product.find("Lingmo") != std::string::npos ? product : tr("Lingmo OS"));
+        productLabel->setTextAlignment(Label::TextAlignment::Center);
+        productLabel->setFontSize(metrics::points(10));
+        productLabel->setWeight(500);
+        LayoutHints productHints;
+        productHints.fillWidth = true;
+        productHints.margins.top = metrics::s;
+        productLabel->setLayoutHints(productHints);
     }
 
     void addIdentity()
     {
-        Card* card = content()->addChild<Card>(Card::Style::List);
+        Section* section = content()->addChild<Section>(tr("Device"));
+        Card* card = section->addChild<Card>(Card::Style::List);
         card->addChild<InfoRow>(tr("PC Name"), about::hostName());
         card->addChild<InfoRow>(tr("OS Version"), about::prettyProductName());
+        const std::string model = about::computerModel();
+        if (!model.empty())
+            card->addChild<InfoRow>(tr("Computer Model"), model);
     }
 
     // Two rows of four: what the system is made of.
     void addSystem()
     {
+        Section* section = content()->addChild<Section>(tr("System"));
         // A padded card: a grid is not a list row and takes the card's padding.
-        Card* card = content()->addChild<Card>(Card::Style::Padded);
+        Card* card = section->addChild<Card>(Card::Style::Padded);
         GridLayout* grid = card->addChild<GridLayout>(4);
         grid->setLayoutHints({.fillWidth = true});
         grid->setColumnSpacing(metrics::l);
@@ -199,13 +238,50 @@ private:
 
     void addActions()
     {
-        Card* card = content()->addChild<Card>(Card::Style::List);
+        Section* section = content()->addChild<Section>(tr("Support"));
+        Card* card = section->addChild<Card>(Card::Style::List);
         NavigationItem* update = card->addChild<NavigationItem>(tr("System Update"));
         update->onClicked = [] { base::Process::startDetached("lingmo-updator"); };
+
+        m_copy = content()->addChild<StandardButton>(tr("Copy System Information"));
+        m_copy->setName("about:copy-info");
+        m_copy->onClicked = [this] {
+            Clipboard::setText(systemInformation());
+            m_copy->setText(tr("Copied"));
+            m_copyReset.start();
+        };
+        m_copyReset.setSingleShot(true);
+        m_copyReset.setInterval(std::chrono::milliseconds(1600));
+        m_copyReset.onTimeout = [this] {
+            if (m_copy)
+                m_copy->setText(tr("Copy System Information"));
+        };
+    }
+
+    std::string systemInformation() const
+    {
+        std::string text = about::prettyProductName() + "\n";
+        const auto line = [&text](const std::string& key, const std::string& value) {
+            if (!value.empty())
+                text += key + ": " + value + "\n";
+        };
+        line(tr("PC Name"), about::hostName());
+        line(tr("Computer Model"), about::computerModel());
+        line(tr("OS Version"), about::prettyProductName());
+        line(tr("Debian Version"), about::debianVersion());
+        line(tr("Linux Kernel Version"), about::kernelVersion());
+        line(tr("Lingmo UI Version"), about::uiVersion());
+        line(tr("System Type"), about::architecture());
+        line(tr("CPU"), about::processor());
+        line(tr("RAM"), about::memorySize());
+        line(tr("Disk"), about::internalStorage());
+        return text;
     }
 
     Picture* m_logo = nullptr;
     std::string m_logoPath;
+    StandardButton* m_copy = nullptr;
+    base::Timer m_copyReset;
     Lingmo::appearance::Appearance m_appearance;
 };
 
