@@ -2525,14 +2525,23 @@ msgid "Edit Widgets…"
 msgstr ""
 
 #: src/pages/desktopwidgets/desktopwidgetspage.cpp
-msgid "Add clock, calendar, system, battery and now-playing cards to your desktop, then drag them where you like."
+msgid "Add clock, calendar, system, battery, now-playing, notes and weather cards to your desktop, then drag them where you like."
 msgstr ""
 
 #: src/pages/desktopwidgets/desktopwidgetspage.cpp
-msgid "A widget's place is saved for the display it is on. Right-click a card to remove it or change its size."
+msgid "The weather card looks the city up with Open-Meteo. A widget's place is saved for the display it is on; right-click a card to remove it or change its size."
 msgstr ""
 
 #: src/window/pagelist.cpp
 msgid "widgets, clock, calendar, battery, desktop cards"
+msgstr ""
+
+
+#: src/pages/desktopwidgets/desktopwidgetspage.cpp
+msgid "Weather city"
+msgstr ""
+
+#: src/pages/desktopwidgets/desktopwidgetspage.cpp
+msgid "City name"
 msgstr ""
 

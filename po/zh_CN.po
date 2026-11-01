@@ -2518,14 +2518,23 @@ msgid "Edit Widgets…"
 msgstr "编辑小组件…"
 
 #: src/pages/desktopwidgets/desktopwidgetspage.cpp
-msgid "Add clock, calendar, system, battery and now-playing cards to your desktop, then drag them where you like."
-msgstr "把时钟、日历、系统、电池和正在播放卡片添加到桌面，然后拖到喜欢的位置。"
+msgid "Add clock, calendar, system, battery, now-playing, notes and weather cards to your desktop, then drag them where you like."
+msgstr "把时钟、日历、系统、电池、正在播放、便签和天气卡片添加到桌面，然后拖到喜欢的位置。"
 
 #: src/pages/desktopwidgets/desktopwidgetspage.cpp
-msgid "A widget's place is saved for the display it is on. Right-click a card to remove it or change its size."
-msgstr "小组件的位置会按显示器分别保存。右键卡片可以移除或调整大小。"
+msgid "The weather card looks the city up with Open-Meteo. A widget's place is saved for the display it is on; right-click a card to remove it or change its size."
+msgstr "天气卡片使用 Open-Meteo 查询城市。小组件位置按显示器分别保存；右键卡片可移除或调整大小。"
 
 #: src/window/pagelist.cpp
 msgid "widgets, clock, calendar, battery, desktop cards"
 msgstr "小组件, 时钟, 日历, 电池, 桌面卡片"
+
+
+#: src/pages/desktopwidgets/desktopwidgetspage.cpp
+msgid "Weather city"
+msgstr "天气城市"
+
+#: src/pages/desktopwidgets/desktopwidgetspage.cpp
+msgid "City name"
+msgstr "城市名称"
 

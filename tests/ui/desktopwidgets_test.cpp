@@ -9,4 +9,5 @@ TEST(DesktopWidgetsPage, OffersOpeningTheGallery)
 {
     PageFixture page("desktopwidgets");
     EXPECT_NE(page.dump().find("\"desktopwidgets:edit\""), std::string::npos);
+    EXPECT_NE(page.dump().find("\"desktopwidgets:weather-city\""), std::string::npos);
 }

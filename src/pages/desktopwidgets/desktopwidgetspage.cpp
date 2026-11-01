@@ -5,8 +5,12 @@
 
 #include "base/dbus.h"
 #include "base/i18n.h"
+#include "base/paths.h"
+#include "base/settings.h"
 #include "ui/label.h"
+#include "ui/text_field.h"
 #include "widgets/card.h"
+#include "widgets/listrow.h"
 #include "widgets/sections.h"
 #include "widgets/standardbutton.h"
 #include "window/page.h"
@@ -28,6 +32,19 @@ void openWidgetGallery()
             .send("EditWidgets");
 }
 
+void saveWeatherCity(const std::string& city)
+{
+    base::Settings settings(base::paths::lingmoConfig("filemanager"));
+    if (city.empty())
+        settings.remove("Weather/City");
+    else
+        settings.setValue("Weather/City", city);
+    settings.sync();
+    dbus::Proxy(dbus::Connection::session(), "org.lingmo.FileManager", "/FileManager",
+                "org.lingmo.FileManager")
+            .send("RefreshWidgets");
+}
+
 class DesktopWidgetsPage : public Page
 {
 public:
@@ -37,18 +54,28 @@ public:
         Card* card = content()->addChild<Card>();
         card->setLayoutHints({.fillWidth = true});
         Lingmo::ui::Label* description = card->addChild<Lingmo::ui::Label>(
-                tr("Add clock, calendar, system, battery and now-playing cards to your desktop, then drag them "
-                   "where you like."));
+                tr("Add clock, calendar, system, battery, now-playing, notes and weather cards to your "
+                   "desktop, then drag them where you like."));
         description->setWrap(true);
         description->setLayoutHints({.fillWidth = true});
+
+        Card* weather = content()->addChild<Card>(Card::Style::List);
+        ListRow* cityRow = weather->addChild<ListRow>(tr("Weather city"));
+        cityRow->setHighlightOnPress(false);
+        Lingmo::ui::TextField* city = cityRow->addContent<Lingmo::ui::TextField>();
+        city->setName("desktopwidgets:weather-city");
+        city->setPlaceholder(tr("City name"));
+        city->setText(base::Settings(base::paths::lingmoConfig("filemanager")).stringValue("Weather/City"));
+        city->onEditingFinished = [city] { saveWeatherCity(city->text()); };
+        city->onAccepted = [city] { saveWeatherCity(city->text()); };
 
         StandardButton* edit = content()->addChild<StandardButton>(tr("Edit Widgets…"));
         edit->setName("desktopwidgets:edit");
         edit->onClicked = [] { openWidgetGallery(); };
 
         content()->addChild<Footnote>(
-                tr("A widget's place is saved for the display it is on. Right-click a card to remove it or "
-                   "change its size."));
+                tr("The weather card looks the city up with Open-Meteo. A widget's place is saved for the "
+                   "display it is on; right-click a card to remove it or change its size."));
     }
 };
 
