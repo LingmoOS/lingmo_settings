@@ -2525,7 +2525,7 @@ msgid "Edit Widgets…"
 msgstr ""
 
 #: src/pages/desktopwidgets/desktopwidgetspage.cpp
-msgid "Add clock, calendar, system and battery cards to your desktop, then drag them where you like."
+msgid "Add clock, calendar, system, battery and now-playing cards to your desktop, then drag them where you like."
 msgstr ""
 
 #: src/pages/desktopwidgets/desktopwidgetspage.cpp

@@ -37,8 +37,8 @@ public:
         Card* card = content()->addChild<Card>();
         card->setLayoutHints({.fillWidth = true});
         Lingmo::ui::Label* description = card->addChild<Lingmo::ui::Label>(
-                tr("Add clock, calendar, system and battery cards to your desktop, then drag them where you "
-                   "like."));
+                tr("Add clock, calendar, system, battery and now-playing cards to your desktop, then drag them "
+                   "where you like."));
         description->setWrap(true);
         description->setLayoutHints({.fillWidth = true});
 
