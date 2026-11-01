@@ -3,10 +3,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include <chrono>
+#include <functional>
 #include <memory>
 #include <string>
 #include <utility>
 
+#include "base/dbus.h"
+#include "base/event_loop.h"
 #include "base/i18n.h"
 #include "base/process.h"
 #include "base/timer.h"
@@ -14,12 +17,16 @@
 #include "pages/about/aboutinfo.h"
 #include "ui/cell_layout.h"
 #include "ui/clipboard.h"
+#include "ui/dialog_window.h"
 #include "ui/image_view.h"
 #include "ui/label.h"
 #include "ui/painter.h"
+#include "ui/text_field.h"
 #include "ui/theme.h"
 #include "ui/view.h"
 #include "widgets/card.h"
+#include "widgets/formdialog.h"
+#include "widgets/iconbutton.h"
 #include "widgets/listrow.h"
 #include "widgets/metrics.h"
 #include "widgets/picture.h"
@@ -27,6 +34,7 @@
 #include "widgets/standardbutton.h"
 #include "window/page.h"
 #include "window/pagelist.h"
+#include "window/settingswindow.h"
 
 using namespace Lingmo::ui;
 using Lingmo::i18n::tr;
@@ -134,6 +142,165 @@ private:
     Label* m_value;
 };
 
+// The host name systemd accepts: letters, digits, hyphen-separated labels,
+// dots between labels, at most 63 characters for the kernel's own name.
+bool validHostName(const std::string &name)
+{
+    if (name.empty() || name.size() > 63)
+        return false;
+    int labelLength = 0;
+    bool hyphen = false;
+    for (const char c : name) {
+        const bool alpha = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+        if (alpha || (c >= '0' && c <= '9')) {
+            ++labelLength;
+            hyphen = false;
+        } else if (c == '-') {
+            if (labelLength == 0)
+                return false;
+            ++labelLength;
+            hyphen = true;
+        } else if (c == '.') {
+            if (labelLength == 0 || hyphen)
+                return false;
+            labelLength = 0;
+            hyphen = false;
+        } else {
+            return false;
+        }
+    }
+    return labelLength > 0 && !hyphen;
+}
+
+std::string trimmedHostName(std::string value)
+{
+    const auto first = value.find_first_not_of(" \t");
+    if (first == std::string::npos)
+        return {};
+    const auto last = value.find_last_not_of(" \t");
+    return value.substr(first, last - first + 1);
+}
+
+// Renames the machine through systemd's hostnamed; polkit asks for
+// authorization, and the dialog stays open until the bus answers.
+class EditHostnameDialog : public FormDialog
+{
+public:
+    EditHostnameDialog(SettingsWindow& parent, const std::string& current,
+                       std::function<void(std::string)> changed)
+        : FormDialog(parent, tr("Change computer name"), 420)
+        , m_changed(std::move(changed))
+        , m_alive(std::make_shared<char>())
+    {
+        content()->addChild<Label>(tr("A computer name identifies this machine on the network."));
+        m_field = content()->addChild<TextField>(current);
+        m_field->setPlaceholder(tr("Computer name"));
+        m_field->setMaximumLength(63);
+        m_field->setLayoutHints({.fillWidth = true});
+        m_field->onAccepted = [this] { save(); };
+
+        Label* hint = content()->addChild<Label>(
+                tr("Letters, numbers, hyphens and dots only; 1–63 characters."));
+        hint->setWrap(true);
+        hint->setColor(ColorId::DisabledText);
+        hint->setLayoutHints({.fillWidth = true});
+
+        m_error = content()->addChild<Label>();
+        m_error->setWrap(true);
+        m_error->setLayoutHints({.fillWidth = true});
+        m_error->setVisible(false);
+        m_field->onTextChanged = [this] {
+            if (!m_waiting) {
+                m_error->setText({});
+                m_error->setVisible(false);
+            }
+            update();
+        };
+
+        RowLayout* buttons = addButtonRow();
+        m_cancel = buttons->addChild<DialogButton>(tr("Cancel"));
+        m_cancel->onClicked = [this] { requestClose(); };
+        m_save = buttons->addChild<DialogButton>(tr("Save"), true);
+        m_save->onClicked = [this] { save(); };
+
+        canClose = [this] { return !m_waiting; };
+        onShown = [this] { m_field->setFocus(); };
+        update();
+    }
+
+private:
+    void update()
+    {
+        const bool valid = validHostName(trimmedHostName(m_field->text()));
+        m_save->setEnabled(!m_waiting && valid);
+        m_cancel->setEnabled(!m_waiting);
+        m_field->setEnabled(!m_waiting);
+    }
+
+    void save()
+    {
+        if (m_waiting)
+            return;
+        const std::string name = trimmedHostName(m_field->text());
+        if (!validHostName(name)) {
+            showError(tr("That is not a valid computer name."));
+            return;
+        }
+        m_field->setText(name);
+        m_waiting = true;
+        update();
+        m_error->setVisible(false);
+
+        base::dbus::Connection* bus = base::dbus::Connection::system(base::EventLoop::current());
+        if (!bus) {
+            fail(tr("The computer name could not be changed."));
+            return;
+        }
+        auto proxy = std::make_shared<base::dbus::Proxy>(bus, "org.freedesktop.hostname1",
+                                                         "/org/freedesktop/hostname1",
+                                                         "org.freedesktop.hostname1");
+        proxy->setInteractiveAuthorizationAllowed(true);
+        proxy->setTimeout(std::chrono::seconds(120));
+        m_pending = proxy->callAsync(
+                "SetStaticHostname",
+                [this, alive = std::weak_ptr<char>(m_alive), proxy, name](const base::dbus::Reply& reply) {
+                    if (alive.expired())
+                        return;
+                    if (reply.isError()) {
+                        fail(tr("The computer name could not be changed."));
+                        return;
+                    }
+                    if (m_changed)
+                        m_changed(name);
+                    close();
+                },
+                name, true);
+    }
+
+    void showError(const std::string& message)
+    {
+        m_error->setText(message);
+        m_error->setVisible(!message.empty());
+        if (!m_waiting)
+            update();
+    }
+
+    void fail(const std::string& message)
+    {
+        m_waiting = false;
+        showError(message);
+    }
+
+    std::function<void(std::string)> m_changed;
+    std::shared_ptr<char> m_alive;
+    TextField* m_field = nullptr;
+    Label* m_error = nullptr;
+    DialogButton* m_cancel = nullptr;
+    DialogButton* m_save = nullptr;
+    base::dbus::PendingCall m_pending;
+    bool m_waiting = false;
+};
+
 class AboutPage : public Page
 {
 public:
@@ -193,11 +360,36 @@ private:
     {
         Section* section = content()->addChild<Section>(tr("Device"));
         Card* card = section->addChild<Card>(Card::Style::List);
-        card->addChild<InfoRow>(tr("PC Name"), about::hostName());
+        m_pcName = card->addChild<InfoRow>(tr("PC Name"), about::hostName());
+        m_pcName->setName("about:pc-name");
+        IconButton* edit = m_pcName->addContent<IconButton>(dataPath("images/edit.svg"), 18);
+        edit->setName("about:edit-pc-name");
+        edit->setLayoutHints({.preferredWidth = 18, .preferredHeight = 18});
+        edit->setColor(ColorId::Text);
+        edit->setOpacity(0.65);
+        edit->setToolTip(tr("Edit computer name"));
+        edit->onClicked = [this] { editHostName(); };
         card->addChild<InfoRow>(tr("OS Version"), about::prettyProductName());
         const std::string model = about::computerModel();
         if (!model.empty())
             card->addChild<InfoRow>(tr("Computer Model"), model);
+    }
+
+    void editHostName()
+    {
+        if (m_hostnameDialog)
+            return;
+        m_hostnameDialog = std::make_unique<EditHostnameDialog>(
+                settingsWindow(), about::hostName(), [this](std::string name) {
+                    if (m_pcName)
+                        m_pcName->setValue(std::move(name));
+                });
+        m_hostnameDialog->onClosed = [this] {
+            // Lets the dialog finish the event that closed it before it goes.
+            std::shared_ptr<EditHostnameDialog> closing(m_hostnameDialog.release());
+            base::EventLoop::current()->post([closing] {});
+        };
+        m_hostnameDialog->show();
     }
 
     // Two rows of four: what the system is made of.
@@ -267,6 +459,8 @@ private:
 
     Picture* m_logo = nullptr;
     std::string m_logoPath;
+    InfoRow* m_pcName = nullptr;
+    std::unique_ptr<EditHostnameDialog> m_hostnameDialog;
     StandardButton* m_copy = nullptr;
     base::Timer m_copyReset;
     Lingmo::appearance::Appearance m_appearance;

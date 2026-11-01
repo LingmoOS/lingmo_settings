@@ -2566,3 +2566,32 @@ msgstr ""
 msgid "Copied"
 msgstr ""
 
+
+#: src/pages/about/aboutpage.cpp
+msgid "Change computer name"
+msgstr ""
+
+#: src/pages/about/aboutpage.cpp
+msgid "A computer name identifies this machine on the network."
+msgstr ""
+
+#: src/pages/about/aboutpage.cpp
+msgid "Computer name"
+msgstr ""
+
+#: src/pages/about/aboutpage.cpp
+msgid "Letters, numbers, hyphens and dots only; 1–63 characters."
+msgstr ""
+
+#: src/pages/about/aboutpage.cpp
+msgid "That is not a valid computer name."
+msgstr ""
+
+#: src/pages/about/aboutpage.cpp
+msgid "The computer name could not be changed."
+msgstr ""
+
+#: src/pages/about/aboutpage.cpp
+msgid "Edit computer name"
+msgstr ""
+

@@ -2559,3 +2559,32 @@ msgstr "复制系统信息"
 msgid "Copied"
 msgstr "已复制"
 
+
+#: src/pages/about/aboutpage.cpp
+msgid "Change computer name"
+msgstr "修改计算机名称"
+
+#: src/pages/about/aboutpage.cpp
+msgid "A computer name identifies this machine on the network."
+msgstr "计算机名称用于在网络中标识这台设备。"
+
+#: src/pages/about/aboutpage.cpp
+msgid "Computer name"
+msgstr "计算机名称"
+
+#: src/pages/about/aboutpage.cpp
+msgid "Letters, numbers, hyphens and dots only; 1–63 characters."
+msgstr "只能使用字母、数字、连字符和点；1–63 个字符。"
+
+#: src/pages/about/aboutpage.cpp
+msgid "That is not a valid computer name."
+msgstr "这不是有效的计算机名称。"
+
+#: src/pages/about/aboutpage.cpp
+msgid "The computer name could not be changed."
+msgstr "无法修改计算机名称。"
+
+#: src/pages/about/aboutpage.cpp
+msgid "Edit computer name"
+msgstr "编辑计算机名称"
+
