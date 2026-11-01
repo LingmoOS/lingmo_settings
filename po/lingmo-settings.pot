@@ -2566,7 +2566,3 @@ msgstr ""
 msgid "Copied"
 msgstr ""
 
-
-#: src/pages/about/aboutpage.cpp
-msgid "Lingmo OS"
-msgstr ""

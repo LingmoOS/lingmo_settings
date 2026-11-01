@@ -2559,7 +2559,3 @@ msgstr "复制系统信息"
 msgid "Copied"
 msgstr "已复制"
 
-
-#: src/pages/about/aboutpage.cpp
-msgid "Lingmo OS"
-msgstr "Lingmo OS"

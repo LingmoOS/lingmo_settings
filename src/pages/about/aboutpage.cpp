@@ -167,8 +167,7 @@ private:
         return dataPath(Theme::current().darkMode ? "images/logo-dark.svg" : "images/logo-light.svg");
     }
 
-    // The wordmark, the rule, and the wallpaper the session is showing, under
-    // the product name and the machine's model.
+    // The wordmark, the rule, and the wallpaper the session is showing.
     void addBrand()
     {
         Card* hero = content()->addChild<Card>();
@@ -188,17 +187,6 @@ private:
         WallpaperThumbnail* thumbnail = brand->addChild<WallpaperThumbnail>(m_appearance.wallpaper());
         thumbnail->setLayoutHints({.preferredWidth = 160, .preferredHeight = 96,
                                    .verticalAlignment = Alignment::Center});
-
-        const std::string product = about::prettyProductName();
-        Label* productLabel =
-                hero->addChild<Label>(product.find("Lingmo") != std::string::npos ? product : tr("Lingmo OS"));
-        productLabel->setTextAlignment(Label::TextAlignment::Center);
-        productLabel->setFontSize(metrics::points(10));
-        productLabel->setWeight(500);
-        LayoutHints productHints;
-        productHints.fillWidth = true;
-        productHints.margins.top = metrics::s;
-        productLabel->setLayoutHints(productHints);
     }
 
     void addIdentity()
