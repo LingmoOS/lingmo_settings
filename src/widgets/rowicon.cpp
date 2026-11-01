@@ -48,12 +48,11 @@ void RowIcon::setInverted(bool inverted)
 }
 
 // The sidebar's own glyphs are white already; the toolkit's need tinting. The
-// unselected tile is a quiet neutral, while the inverted tile takes the accent
-// behind its glyph so the current row keeps the accent.
+// unselected tile is a quiet neutral and the current tile takes the accent,
+// with a white glyph in both states.
 void RowIcon::applyGlyphColor()
 {
-    const Color accent = m_accent.a ? m_accent : m_tint;
-    const Color glyph = m_inverted ? accent : Color::rgb(0xFFFFFF);
+    const Color glyph = Color::rgb(0xFFFFFF);
     if (m_pictureGlyph)
         m_picture->setTint(glyph);
     else
@@ -69,7 +68,8 @@ void RowIcon::layout()
 
 void RowIcon::paint(Painter& painter)
 {
-    const Color fill = m_inverted ? Theme::current().highlightedText : m_tint;
+    const Color accent = m_accent.a ? m_accent : m_tint;
+    const Color fill = m_inverted ? accent : m_tint;
     painter.fillRoundedRect(localRect(), 6, LinearGradient::vertical(localRect(), fill.lighter(1.15), fill));
 }
 
