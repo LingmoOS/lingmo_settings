@@ -39,6 +39,9 @@ static constexpr double kButtonsSpacing = 1;
 static constexpr size_t kMaxHistoryLength = 50;
 static constexpr uint32_t kBackKey = 0x1008ff26;
 static constexpr uint32_t kForwardKey = 0x1008ff27;
+// The frosted sidebar's widening of the backdrop; FishUI's 1.2 was nearly
+// clear, so the 70% tint alone read as plain transparency.
+static constexpr double kSidebarBlurSigma = 20;
 
 // The sidebar's width on whole device pixels, so its edge and the page's
 // clip share one.
@@ -403,9 +406,11 @@ void SettingsWindow::updateBackground()
     // FishUI's translucent window did.
     if (m_window->backgroundGlassAvailable()) {
         m_window->setBackgroundColor(Color{0, 0, 0, 0});
-        // GlassMaterial's defaults are FishUI's glass, tinted 12%: the
-        // sidebar's 70% tint over it keeps the desktop's colours through.
+        // Frosted rather than FishUI's nearly clear lens: the sidebar's 70%
+        // tint needs a visible Gaussian blur under it. The rest of the
+        // material stays FishUI's, tinted 12% so the desktop's colours show.
         GlassMaterial glass;
+        glass.blurSigma = kSidebarBlurSigma;
         if (theme.darkMode) {
             glass.tintRed = glass.tintGreen = 0.18;
             glass.tintBlue = 0.20;
