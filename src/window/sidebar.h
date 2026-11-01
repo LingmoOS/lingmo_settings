@@ -23,8 +23,8 @@ class SidebarList;
 
 // The window's left column: its title, a search field, and the pages by
 // category. Typing lists matching pages, sub pages included, in place of the
-// categories; Up and Down move through them, Return opens one, Escape clears
-// the search.
+// categories; Up and Down walk the sidebar or the results, Return opens one,
+// and Escape clears the search.
 class Sidebar : public Lingmo::ui::View
 {
 public:
@@ -55,6 +55,7 @@ public:
     std::function<void(const std::string& page, const std::string& rootPage)> onActivated;
 
     Lingmo::ui::SizeF sizeHint() const override;
+    bool acceptsFocus() const override { return true; }
 
 protected:
     void layout() override;
@@ -83,6 +84,8 @@ private:
     SidebarList* m_list;
     Lingmo::ui::ScrollView* m_resultsScroll;
     SidebarList* m_resultsList;
+    Lingmo::ui::View* m_topFade;
+    Lingmo::ui::View* m_bottomFade;
     Lingmo::ui::Label* m_noResults;
 };
 

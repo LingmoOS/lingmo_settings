@@ -16,13 +16,13 @@ namespace settings {
 
 class Picture;
 
-// The sidebar's tile: a coloured rounded square with a white glyph, for the
-// sidebar and a list row's leading slot. The glyph is one of settings'
-// sidebar pictures, or a toolkit glyph when the name has no ".svg".
+// The sidebar's tile: a rounded square with a white glyph, for the sidebar
+// and a list row's leading slot. The glyph is one of settings' sidebar
+// pictures, or a toolkit glyph when the name has no ".svg".
 class RowIcon : public Lingmo::ui::View
 {
 public:
-    RowIcon(std::string glyph, Lingmo::ui::Color tint);
+    RowIcon(std::string glyph, Lingmo::ui::Color tint, Lingmo::ui::Color accent = {});
 
     void set(std::string glyph, Lingmo::ui::Color tint);
     // The current sidebar entry draws its tile inverted: white behind the
@@ -40,6 +40,7 @@ private:
     void applyGlyphColor();
 
     Lingmo::ui::Color m_tint;
+    Lingmo::ui::Color m_accent;
     bool m_inverted = false;
     bool m_pictureGlyph = false;
     Picture* m_picture;

@@ -15,7 +15,9 @@ namespace settings {
 
 static constexpr double kGlyph = 16;
 
-RowIcon::RowIcon(std::string glyph, Color tint)
+RowIcon::RowIcon(std::string glyph, Color tint, Color accent)
+    : m_tint(tint)
+    , m_accent(accent)
 {
     m_picture = addChild<Picture>();
     m_glyph = addChild<Icon>(std::string(), kGlyph);
@@ -45,12 +47,13 @@ void RowIcon::setInverted(bool inverted)
     requestPaint();
 }
 
-// The sidebar's own glyphs are white already; the toolkit's need tinting. Both
-// take the accent when the tile is inverted, so the glyph is the colour of the
-// row behind it and the tile is the colour of the page behind that.
+// The sidebar's own glyphs are white already; the toolkit's need tinting. The
+// unselected tile is a quiet neutral, while the inverted tile takes the accent
+// behind its glyph so the current row keeps the accent.
 void RowIcon::applyGlyphColor()
 {
-    const Color glyph = m_inverted ? m_tint : Color::rgb(0xFFFFFF);
+    const Color accent = m_accent.a ? m_accent : m_tint;
+    const Color glyph = m_inverted ? accent : Color::rgb(0xFFFFFF);
     if (m_pictureGlyph)
         m_picture->setTint(glyph);
     else

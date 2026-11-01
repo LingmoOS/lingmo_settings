@@ -159,6 +159,32 @@ TEST_F(Fixture, SearchMatchesWordStarts)
     EXPECT_FALSE(isHidden(window(), "sidebar:appearance"));
 }
 
+TEST_F(Fixture, ArrowKeysWalkTheSidebar)
+{
+    settingsWindow->switchToPage("about");
+    TestInput::setKeyboardFocus(window(), true);
+    TestInput::typeKey(window(), key::letter('f'), ControlModifier);
+    TestInput::typeKey(window(), key::Up);
+    window().grab();
+    EXPECT_NE(dumpLine(window(), "page:power"), "");
+    TestInput::typeKey(window(), key::Down);
+    window().grab();
+    EXPECT_NE(dumpLine(window(), "page:about"), "");
+}
+
+TEST_F(Fixture, ClickingSidebarKeepsArrowKeys)
+{
+    settingsWindow->switchToPage("about");
+    window().grab();
+    const RectF about = windowRect(window(), "sidebar:about");
+    TestInput::click(window(), {about.x + about.width / 2, about.y + about.height / 2});
+    window().grab();
+    EXPECT_NE(dumpLine(window(), "page:about"), "");
+    TestInput::typeKey(window(), key::Up);
+    window().grab();
+    EXPECT_NE(dumpLine(window(), "page:power"), "");
+}
+
 TEST(ListRow, KeepsTheRowHeights)
 {
     Window window;

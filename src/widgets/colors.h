@@ -15,6 +15,15 @@ namespace settings {
 enum class SettingsColor : uint16_t {
     SidebarBackground = uint16_t(Lingmo::ui::ColorId::ApplicationFirst),
     SidebarItemCurrent,
+    SidebarIconTile,
+    SidebarItemHovered,
+    SidebarPanelTop,
+    SidebarPanelBottom,
+    SidebarPanelBorder,
+    SidebarPanelHighlight,
+    SidebarPanelGloss,
+    SidebarPanelBottomEdge,
+    SidebarPanelShadow,
 
     RowHighlight,
     RowComboBoxHovered,

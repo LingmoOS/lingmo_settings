@@ -31,10 +31,6 @@ static constexpr double kSearchHeight = 28;
 static constexpr double kTitlePointSize = 12;
 static constexpr double kItemPointSize = 8;
 static constexpr double kIconTile = 24;
-// The sidebar's own background is drawn at 0.7. A category's panel sits a
-// shade clearer than that, so it reads as a layer on the sidebar rather than a
-// hole cut through it.
-static constexpr double kPanelOpacity = 0.5;
 
 static bool windowActive(const View* view)
 {
@@ -49,12 +45,14 @@ public:
     explicit SidebarItem(const PageInfo& page)
         : m_page(page)
     {
-        // Every tile carries the accent, as the desktop's sidebar does; the
-        // page's own colour is kept in PageInfo for the lists that want it.
-        m_icon = addChild<RowIcon>(page.icon, Theme::current().highlight);
+        // The tile stays quiet when idle; the current row keeps the accent.
+        m_icon = addChild<RowIcon>(page.icon, color(SettingsColor::SidebarIconTile),
+                                   Theme::current().highlight);
         m_title = addChild<Label>(tr(page.title.c_str()));
         m_title->setFontSize(metrics::points(kItemPointSize));
         m_title->setVerticallyCentered(true);
+        setTracksHover(true);
+        setCursorShape(CursorShape::Pointer);
     }
 
     const PageInfo& page() const { return m_page; }
@@ -102,14 +100,17 @@ protected:
     void paint(Painter& painter) override
     {
         const Theme& theme = Theme::current();
-        // The current entry is filled with the accent, as the desktop's
-        // sidebar has it; pressing shows the same shape in the press colour.
-        if (m_pressed || m_current) {
-            painter.drawSmoothRectangle(
-                localRect(), theme.mediumRadius,
-                m_pressed ? color(ColorId::ItemPressed) : color(SettingsColor::SidebarItemCurrent));
+        // The current entry keeps the accent; a hovered row gets only a hint
+        // of a surface, and the pressed row deepens it.
+        if (m_pressed || m_current || isHovered()) {
+            const Color fill = m_pressed ? color(ColorId::ItemPressed)
+                                : m_current ? color(SettingsColor::SidebarItemCurrent)
+                                            : color(SettingsColor::SidebarItemHovered);
+            painter.drawSmoothRectangle(localRect(), theme.mediumRadius, fill);
         }
     }
+
+    void hoverChanged() override { requestPaint(); }
 
     void pointerPress(const PointerEvent& event) override
     {
@@ -137,14 +138,20 @@ private:
     bool m_pressed = false;
 };
 
-// A category's name above its entries.
+// A category's name above its entries. With a count it is a search result
+// group: brighter than an ordinary category and followed by its result count.
 class SidebarSection : public View
 {
 public:
-    explicit SidebarSection(std::string text)
+    explicit SidebarSection(std::string text, int count = -1)
+        : m_count(count >= 0)
     {
         m_label = addChild<Label>(std::move(text));
         m_label->setFontSize(metrics::points(kItemPointSize));
+        if (m_count) {
+            m_countLabel = addChild<Label>(std::to_string(count));
+            m_countLabel->setFontSize(metrics::points(kItemPointSize));
+        }
         m_metrics = addChild<Label>("X");
         m_metrics->setVisible(false);
     }
@@ -159,15 +166,29 @@ public:
 protected:
     void layout() override
     {
-        m_label->setColor(Theme::current().disabledText);
+        const Theme& theme = Theme::current();
+        const double padding = metrics::sidebarItemPadding;
+        m_label->setColor(m_count ? theme.text.withAlpha(0.62) : theme.disabledText);
         const SizeF label = m_label->sizeHint();
-        m_label->setGeometry({metrics::sidebarItemPadding, metrics::sidebarCategorySpacing,
-                              std::max(0.0, geometry().width - 2 * metrics::sidebarItemPadding), label.height});
+        const double countWidth = m_countLabel ? m_countLabel->sizeHint().width : 0;
+        const double gap = m_countLabel ? metrics::s : 0;
+        m_label->setGeometry({padding, metrics::sidebarCategorySpacing,
+                              std::max(0.0, geometry().width - 2 * padding - countWidth - gap), label.height});
+        if (m_countLabel) {
+            const SizeF count = m_countLabel->sizeHint();
+            m_countLabel->setColor(theme.disabledText);
+            m_countLabel->setGeometry({geometry().width - padding - count.width,
+                                       metrics::sidebarCategorySpacing +
+                                               (std::ceil(m_metrics->sizeHint().height) - count.height) / 2,
+                                       count.width, count.height});
+        }
     }
 
 private:
     Label* m_label;
+    Label* m_countLabel = nullptr;
     Label* m_metrics;
+    bool m_count = false;
 };
 
 // The entries of the sidebar or of a search, by category, as a list view
@@ -188,24 +209,30 @@ public:
             takeChild(children().front().get());
         m_entries = std::move(entries);
         m_items.clear();
-        std::string category;
-        for (size_t i = 0; i < m_entries.size(); ++i) {
-            const Entry& entry = m_entries[i];
-            if (i == 0 || entry.rootPage->category != category) {
-                category = entry.rootPage->category;
-                addChild<SidebarSection>(tr(category.c_str()));
+        for (size_t i = 0; i < m_entries.size();) {
+            const std::string category = m_entries[i].rootPage->category;
+            size_t end = i + 1;
+            while (end < m_entries.size() && m_entries[end].rootPage->category == category)
+                ++end;
+            addChild<SidebarSection>(tr(category.c_str()), m_resultMode ? int(end - i) : -1);
+            for (size_t j = i; j < end; ++j) {
+                SidebarItem* item = addChild<SidebarItem>(*m_entries[j].page);
+                item->setName(m_namePrefix + m_entries[j].page->id);
+                item->onClicked = [this, j] {
+                    if (onFocusRequested)
+                        onFocusRequested();
+                    if (onClicked)
+                        onClicked(int(j));
+                };
+                m_items.push_back(item);
             }
-            SidebarItem* item = addChild<SidebarItem>(*entry.page);
-            item->setName(m_namePrefix + entry.page->id);
-            item->onClicked = [this, i] {
-                if (onClicked)
-                    onClicked(int(i));
-            };
-            m_items.push_back(item);
+            i = end;
         }
         setCurrentIndex(m_current);
         requestLayout();
     }
+
+    void setResultMode(bool result) { m_resultMode = result; }
 
     // Scrolls the current entry into view at the next layout, with the
     // list's bottom margin below it.
@@ -238,6 +265,9 @@ public:
     double heightForWidth(double) const override { return measure(nullptr); }
 
     std::function<void(int index)> onClicked;
+    // Called before opening an entry, so keyboard navigation keeps working
+    // after a click on the list.
+    std::function<void()> onFocusRequested;
 
 protected:
     void layout() override
@@ -251,15 +281,35 @@ protected:
     }
 
     // One panel per category, behind its entries and under them in the stack:
-    // the list paints first, its children over it.
+    // the list paints first, its children over it. The fill runs light to dark,
+    // with a bright top edge and a soft shadow, so the panel reads as glass
+    // over the sidebar in both themes.
     void paint(Painter& painter) override
     {
         const Theme& theme = Theme::current();
         const double width = geometry().width - 2 * metrics::sidebarMargin;
+        const Color top = color(SettingsColor::SidebarPanelTop);
+        const Color bottom = color(SettingsColor::SidebarPanelBottom);
+        const Color border = color(SettingsColor::SidebarPanelBorder);
+        const Color highlight = color(SettingsColor::SidebarPanelHighlight);
+        const Color gloss = color(SettingsColor::SidebarPanelGloss);
+        const Color bottomEdge = color(SettingsColor::SidebarPanelBottomEdge);
+        const Color shadow = color(SettingsColor::SidebarPanelShadow);
         for (const Panel& panel : m_panels) {
             const RectF rect{metrics::sidebarMargin, panel.top, width, panel.bottom - panel.top};
-            painter.drawRoundedRect(rect, {theme.mediumRadius, 0, themeCorners()},
-                                    theme.secondBackground.withAlpha(kPanelOpacity));
+            painter.drawShadow(rect, theme.mediumRadius, theme.darkMode ? 22 : 12, shadow, {0, 2});
+            painter.fillRoundedRect(rect, theme.mediumRadius, LinearGradient::vertical(rect, top, bottom));
+            painter.save();
+            painter.clipRoundedRect(rect, theme.mediumRadius);
+            const RectF glossRect{rect.x, rect.y, rect.width, std::min(rect.height * 0.5, 40.0)};
+            painter.fillRoundedRect(glossRect, 0, LinearGradient::vertical(glossRect, gloss, gloss.withAlpha(0)));
+            painter.fillRect({rect.x + theme.mediumRadius, rect.y, rect.width - 2 * theme.mediumRadius, 1},
+                             highlight);
+            painter.fillRect({rect.x + theme.mediumRadius, rect.bottom() - 1,
+                              rect.width - 2 * theme.mediumRadius, 1},
+                             bottomEdge);
+            painter.restore();
+            painter.drawSmoothRectangle(rect, theme.mediumRadius, Color {0, 0, 0, 0}, 1, border);
         }
     }
 
@@ -323,10 +373,35 @@ private:
     ScrollView* m_revealIn = nullptr;
     std::vector<Entry> m_entries;
     std::vector<SidebarItem*> m_items;
+    bool m_resultMode = false;
     // Filled by measure(), which is const: the panels are what it found, not
     // state the list keeps.
     mutable std::vector<Panel> m_panels;
     int m_current = -1;
+};
+
+// A short gradient at the top or bottom of the scrolling list, so the rows
+// fade into the sidebar instead of meeting the search field or the window edge.
+class SidebarFade : public View
+{
+public:
+    explicit SidebarFade(bool top)
+        : m_top(top)
+    {
+    }
+
+protected:
+    void paint(Painter& painter) override
+    {
+        const Color background = color(SettingsColor::SidebarBackground);
+        const Color clear = background.withAlpha(0);
+        painter.fillRoundedRect(localRect(), 0,
+                                LinearGradient::vertical(localRect(), m_top ? background : clear,
+                                                         m_top ? clear : background));
+    }
+
+private:
+    bool m_top;
 };
 
 Sidebar::Sidebar()
@@ -345,6 +420,7 @@ Sidebar::Sidebar()
     m_listScroll = addChild<ScrollView>();
     m_list = m_listScroll->setContent<SidebarList>();
     m_list->setNamePrefix("sidebar:");
+    m_list->onFocusRequested = [this] { setFocus(FocusReason::Mouse); };
     m_list->onClicked = [this](int index) {
         const auto& entry = m_list->entries()[size_t(index)];
         if (onActivated)
@@ -354,7 +430,11 @@ Sidebar::Sidebar()
     m_resultsScroll->setVisible(false);
     m_resultsList = m_resultsScroll->setContent<SidebarList>();
     m_resultsList->setNamePrefix("result:");
+    m_resultsList->setResultMode(true);
+    m_resultsList->onFocusRequested = [this] { setFocus(FocusReason::Mouse); };
     m_resultsList->onClicked = [this](int index) { openResult(index); };
+    m_topFade = addChild<SidebarFade>(true);
+    m_bottomFade = addChild<SidebarFade>(false);
     m_noResults = addChild<Label>(tr("No results"));
     m_noResults->setElide(Label::Elide::None);
     m_noResults->setVisible(false);
@@ -579,8 +659,39 @@ void Sidebar::openResult(int index)
 
 bool Sidebar::keyPress(const KeyEvent& event)
 {
-    if (!m_search->hasFocus())
+    if (!m_search->hasFocus() && !hasFocus())
         return false;
+    if (!isSearching()) {
+        // With no query the arrows walk the sidebar's own pages; Return opens
+        // the highlighted one.
+        if (event.key == key::Down || event.key == key::Up) {
+            const int count = m_list->count();
+            if (count == 0)
+                return true;
+            int index = m_list->currentIndex();
+            if (index < 0)
+                index = 0;
+            else
+                index = std::clamp(index + (event.key == key::Down ? 1 : -1), 0, count - 1);
+            if (index != m_list->currentIndex()) {
+                m_list->setCurrentIndex(index);
+                m_list->revealCurrent(m_listScroll);
+                const auto& entry = m_list->entries()[size_t(index)];
+                if (onActivated)
+                    onActivated(entry.page->id, entry.rootPage->id);
+            }
+            return true;
+        }
+        if (event.key == key::Return) {
+            const int index = m_list->currentIndex();
+            if (index >= 0 && index < m_list->count()) {
+                const auto& entry = m_list->entries()[size_t(index)];
+                if (onActivated)
+                    onActivated(entry.page->id, entry.rootPage->id);
+            }
+            return true;
+        }
+    }
     const int count = int(m_results.size());
     switch (event.key) {
     case key::Down:
@@ -626,6 +737,9 @@ void Sidebar::layout()
     const double listTop = searchTop + kSearchHeight;
     m_listScroll->setGeometry({0, listTop, width, height - listTop});
     m_resultsScroll->setGeometry({0, listTop, width, height - listTop});
+    const double fadeHeight = metrics::m;
+    m_topFade->setGeometry({0, listTop, width, fadeHeight});
+    m_bottomFade->setGeometry({0, height - fadeHeight, width, fadeHeight});
     m_noResults->setColor(theme.disabledText);
     const SizeF noResults = m_noResults->sizeHint();
     m_noResults->setGeometry({std::round((width - noResults.width) / 2), listTop + metrics::sidebarCategorySpacing,
