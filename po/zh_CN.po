@@ -2508,3 +2508,24 @@ msgstr "更不透明"
 #: src/window/pagelist.cpp
 msgid "top bar, panel, blur, transparency"
 msgstr "顶栏, 面板, 模糊, 透明度"
+
+#: src/pages/desktopwidgets/desktopwidgetspage.cpp src/window/pagelist.cpp
+msgid "Desktop Widgets"
+msgstr "桌面小组件"
+
+#: src/pages/desktopwidgets/desktopwidgetspage.cpp
+msgid "Edit Widgets…"
+msgstr "编辑小组件…"
+
+#: src/pages/desktopwidgets/desktopwidgetspage.cpp
+msgid "Add clock, calendar, system and battery cards to your desktop, then drag them where you like."
+msgstr "把时钟、日历、系统和电池卡片添加到桌面，然后拖到喜欢的位置。"
+
+#: src/pages/desktopwidgets/desktopwidgetspage.cpp
+msgid "A widget's place is saved for the display it is on. Right-click a card to remove it or change its size."
+msgstr "小组件的位置会按显示器分别保存。右键卡片可以移除或调整大小。"
+
+#: src/window/pagelist.cpp
+msgid "widgets, clock, calendar, battery, desktop cards"
+msgstr "小组件, 时钟, 日历, 电池, 桌面卡片"
+

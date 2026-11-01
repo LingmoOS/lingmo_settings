@@ -2515,3 +2515,24 @@ msgstr ""
 #: src/window/pagelist.cpp
 msgid "top bar, panel, blur, transparency"
 msgstr ""
+
+#: src/pages/desktopwidgets/desktopwidgetspage.cpp src/window/pagelist.cpp
+msgid "Desktop Widgets"
+msgstr ""
+
+#: src/pages/desktopwidgets/desktopwidgetspage.cpp
+msgid "Edit Widgets…"
+msgstr ""
+
+#: src/pages/desktopwidgets/desktopwidgetspage.cpp
+msgid "Add clock, calendar, system and battery cards to your desktop, then drag them where you like."
+msgstr ""
+
+#: src/pages/desktopwidgets/desktopwidgetspage.cpp
+msgid "A widget's place is saved for the display it is on. Right-click a card to remove it or change its size."
+msgstr ""
+
+#: src/window/pagelist.cpp
+msgid "widgets, clock, calendar, battery, desktop cards"
+msgstr ""
+
