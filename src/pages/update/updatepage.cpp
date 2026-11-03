@@ -27,7 +27,6 @@
 using namespace Lingmo;
 using namespace Lingmo::ui;
 using Lingmo::i18n::tr;
-using Lingmo::i18n::trNoop;
 using Lingmo::i18n::format;
 
 namespace settings {
