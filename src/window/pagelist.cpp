@@ -93,6 +93,9 @@ static std::vector<PageInfo> makePages()
     add({.id = "about", .name = "about", .title = trNoop("About"), .icon = "about.svg",
          .iconColor = Color::rgb(0x24A7FD), .category = trNoop("System"),
          .keywords = trNoop("system, version, kernel, processor, memory, storage, hardware")});
+    add({.id = "update", .name = "update", .title = trNoop("Software Update"), .icon = "update.svg",
+         .iconColor = Color::rgb(0x0067FF), .category = trNoop("System"),
+         .keywords = trNoop("system update, software update, upgrade, version, apt, packages")});
 
     // Sub pages, opened from inside a sidebar page; search lists them after it.
     add({.id = "vpn", .name = "vpn", .title = trNoop("VPN"), .icon = "network-vpn",

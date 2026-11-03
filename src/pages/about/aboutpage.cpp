@@ -552,11 +552,6 @@ private:
 
     void addActions()
     {
-        Section* section = content()->addChild<Section>(tr("Support"));
-        Card* card = section->addChild<Card>(Card::Style::List);
-        NavigationItem* update = card->addChild<NavigationItem>(tr("System Update"));
-        update->onClicked = [] { base::Process::startDetached("lingmo-updator"); };
-
         m_copy = content()->addChild<StandardButton>(tr("Copy System Information"));
         m_copy->setName("about:copy-info");
         m_copy->onClicked = [this] {

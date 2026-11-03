@@ -1,3 +1,13 @@
+lingmo-settings (5.0.5+lingmo5u1) unstable; urgency=medium
+
+  * Add Software Update page (org.lingmo.Services.Update): check for
+    system and package updates, show changelog, track download and install
+    progress. Register in the sidebar after About.
+  * About: remove the old "System Update" navigation item pointing to the
+    lingmo-updator binary.
+
+ -- Lingmo OS Team <team@lingmo.org>  Tue, 03 Nov 2026 23:30:00 +0800
+
 lingmo-settings (5.0.4+lingmo5u1) unstable; urgency=medium
 
   * Give each sidebar category a panel behind its entries, a shade
