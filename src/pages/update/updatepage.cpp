@@ -11,6 +11,7 @@
 #include "base/signal.h"
 #include "lingmo/update/update_status.h"
 #include "ui/button.h"
+#include "ui/color_provider.h"
 #include "ui/label.h"
 #include "ui/layout.h"
 #include "ui/cell_layout.h"
@@ -124,11 +125,10 @@ protected:
     void paint(Painter& painter) override
     {
         Card::paint(painter);
-        // Draw the separator
-        const Theme& theme = Theme::current();
+        // Draw the separator using the toolkit's Separator colour.
         const RectF sep = m_separator->geometry();
         painter.fillRect({sep.x, sep.y, sep.width, 1},
-                         theme.separator);
+                         color(ColorId::Separator));
     }
 
 private:
