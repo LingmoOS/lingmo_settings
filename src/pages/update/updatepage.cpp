@@ -274,14 +274,17 @@ private:
             m_statusLabel->setText(tr("Update failed!"));
             m_subtitleLabel->setText(lastCheckStr);
             m_actionButton->setText(tr("Check again"));
-            m_updateCard->setTitle(tr("Failure log"));
-            m_updateCard->setSizeText(
-                m_status->newVersion().empty()
-                    ? std::string{}
-                    : format(tr("Version: {v}"), {{"v", m_status->newVersion()}}));
-            m_updateCard->setBody(m_status->errorLog());
-            m_updateCard->setIconColor(Color::rgb(0xFF3B30));
-            m_updateCard->setVisible(true);
+            // Only show the error card when there is a log to display.
+            if (!m_status->errorLog().empty()) {
+                m_updateCard->setTitle(tr("Failure log"));
+                m_updateCard->setSizeText(
+                    m_status->newVersion().empty()
+                        ? std::string{}
+                        : format(tr("Version: {v}"), {{"v", m_status->newVersion()}}));
+                m_updateCard->setBody(m_status->errorLog());
+                m_updateCard->setIconColor(Color::rgb(0xFF3B30));
+                m_updateCard->setVisible(true);
+            }
             break;
         }
     }
