@@ -1,3 +1,11 @@
+lingmo-settings (5.0.6+lingmo5u1) unstable; urgency=medium
+
+  * desktop widgets page: add "New icon position" combo box (Top Right,
+    Top Left, Bottom Left, Bottom Right) that calls SetIconCorner on
+    org.lingmo.FileManager and updates the desktop grid anchor.
+
+ -- Lingmo OS Team <team@lingmo.org>  Wed, 04 Nov 2026 13:00:00 +0800
+
 lingmo-settings (5.0.5+lingmo5u1) unstable; urgency=medium
 
   * Add Software Update page (org.lingmo.Services.Update): check for

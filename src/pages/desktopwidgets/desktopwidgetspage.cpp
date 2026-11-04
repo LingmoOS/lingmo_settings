@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 LingmoOS Contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+#include <cstdint>
 #include <memory>
 
 #include "base/dbus.h"
@@ -11,6 +12,7 @@
 #include "ui/text_field.h"
 #include "widgets/card.h"
 #include "widgets/listrow.h"
+#include "widgets/rowcombobox.h"
 #include "widgets/sections.h"
 #include "widgets/standardbutton.h"
 #include "window/page.h"
@@ -68,6 +70,23 @@ public:
         city->setText(base::Settings(base::paths::lingmoConfig("filemanager")).stringValue("Weather/City"));
         city->onEditingFinished = [city] { saveWeatherCity(city->text()); };
         city->onAccepted = [city] { saveWeatherCity(city->text()); };
+
+        // Icons section: new icon position
+        const int currentCorner = int(
+                base::Settings(base::paths::lingmoConfig("filemanager")).intValue("Desktop/iconCorner", 0));
+        Section* iconsSection = content()->addChild<Section>(tr("Icons"));
+        Card* iconsCard = iconsSection->addChild<Card>(Card::Style::List);
+        ListRow* cornerRow = iconsCard->addChild<ListRow>(tr("New icon position"));
+        cornerRow->setHighlightOnPress(false);
+        cornerRow->setInteractive(false);
+        RowComboBox* cornerCombo = cornerRow->addContent<RowComboBox>(
+                std::vector<std::string>{tr("Top Right"), tr("Top Left"), tr("Bottom Left"), tr("Bottom Right")});
+        cornerCombo->setCurrentIndex(currentCorner);
+        cornerCombo->onActivated = [](int index) {
+            dbus::Proxy(dbus::Connection::session(), "org.lingmo.FileManager", "/FileManager",
+                        "org.lingmo.FileManager")
+                    .send("SetIconCorner", int32_t(index));
+        };
 
         StandardButton* edit = content()->addChild<StandardButton>(tr("Edit Widgets…"));
         edit->setName("desktopwidgets:edit");
