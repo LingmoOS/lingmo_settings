@@ -225,6 +225,19 @@ private:
     // ── state refresh ─────────────────────────────────────────────────────────
     void refresh()
     {
+        // Service not yet on the bus — grey out and disable until it appears.
+        if (!m_status->isAvailable()) {
+            m_headerIcon->set("update.svg", Color::rgb(0x8E8E93));
+            m_statusLabel->setText(tr("Update service unavailable"));
+            m_subtitleLabel->setText(tr("The system service is not running."));
+            m_subtitleLabel->setVisible(true);
+            m_progressBar->setVisible(false);
+            m_updateCard->setVisible(false);
+            m_actionButton->setText(tr("Check for updates"));
+            m_actionButton->setEnabled(false);
+            return;
+        }
+
         const update::State state = m_status->state();
         const int64_t lastCheck   = m_status->lastCheckTime();
         const std::string lastCheckStr = format(

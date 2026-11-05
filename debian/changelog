@@ -1,3 +1,12 @@
+lingmo-settings (5.0.8+lingmo5u1) unstable; urgency=medium
+
+  * update page: show "service unavailable" state when lingmo-services is
+    not on the bus; grey icon, disabled button, descriptive subtitle.
+    Prevents the button from silently doing nothing when the daemon has
+    not started yet.
+
+ -- Lingmo OS Team <team@lingmo.org>  Thu, 05 Nov 2026 07:20:00 +0800
+
 lingmo-settings (5.0.7+lingmo5u1) unstable; urgency=medium
 
   * update page: replace placeholder "Advanced options" navigation item
