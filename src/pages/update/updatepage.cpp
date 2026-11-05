@@ -4,6 +4,7 @@
 #include <chrono>
 #include <ctime>
 #include <string>
+#include <vector>
 
 #include "base/i18n.h"
 #include "base/signal.h"
@@ -18,6 +19,7 @@
 #include "widgets/card.h"
 #include "widgets/listrow.h"
 #include "widgets/metrics.h"
+#include "widgets/rowcombobox.h"
 #include "widgets/rowicon.h"
 #include "widgets/sections.h"
 #include "window/page.h"
@@ -202,11 +204,22 @@ private:
     {
         m_optionsSection = content()->addChild<Section>(tr("More options"));
         m_optionsSection->setName("update:options");
+
         Card* card = m_optionsSection->addChild<Card>(Card::Style::List);
-        NavigationItem* advanced = card->addChild<NavigationItem>(tr("Advanced options"));
-        advanced->setName("update:advanced");
-        // Advanced options sub-page to be implemented later.
-        (void)advanced;
+
+        // Release channel selector
+        ListRow* channelRow = card->addChild<ListRow>(tr("Release channel"));
+        channelRow->setName("update:channel");
+        channelRow->setInteractive(false);
+        m_channelCombo = channelRow->addContent<RowComboBox>(
+            std::vector<std::string>{tr("Stable"), tr("Beta"), tr("Nightly")});
+        m_channelCombo->onActivated = [this](int index) {
+            m_status->setChannel(index);
+        };
+
+        m_optionsSection->addChild<Footnote>(
+            tr("Stable receives tested releases. Beta gets upcoming features early. "
+               "Nightly follows the development branch and may be unstable."));
     }
 
     // ── state refresh ─────────────────────────────────────────────────────────
@@ -223,15 +236,20 @@ private:
         m_updateCard->setVisible(false);
         m_actionButton->setEnabled(true);
 
+        // Sync the channel combo to the current service value.
+        m_channelCombo->setCurrentIndex(int(m_status->channel()));
+
         switch (state) {
         case update::State::Idle:
         case update::State::UpToDate:
+            m_headerIcon->set("update.svg", Color::rgb(0x34C759));
             m_statusLabel->setText(tr("You're up to date"));
             m_subtitleLabel->setText(lastCheckStr);
             m_actionButton->setText(tr("Check for updates"));
             break;
 
         case update::State::Checking:
+            m_headerIcon->set("update.svg", Color::rgb(0x0067FF));
             m_statusLabel->setText(tr("Checking for updates"));
             m_subtitleLabel->setVisible(false);
             m_progressBar->setVisible(true);
@@ -242,6 +260,7 @@ private:
 
         case update::State::SystemUpgrade:
         case update::State::SoftwareUpdate: {
+            m_headerIcon->set("update.svg", Color::rgb(0x0067FF));
             m_statusLabel->setText(tr("Updates available"));
             m_subtitleLabel->setText(lastCheckStr);
             m_actionButton->setText(tr("Update now"));
@@ -265,12 +284,14 @@ private:
         }
 
         case update::State::Upgrading:
+            m_headerIcon->set("update.svg", Color::rgb(0x0067FF));
             refreshProgress();
             m_actionButton->setEnabled(false);
             m_updateCard->setVisible(true);
             break;
 
         case update::State::Error:
+            m_headerIcon->set("update.svg", Color::rgb(0xFF3B30));
             m_statusLabel->setText(tr("Update failed!"));
             m_subtitleLabel->setText(lastCheckStr);
             m_actionButton->setText(tr("Check again"));
@@ -336,6 +357,7 @@ private:
     Button*         m_actionButton;
     UpdateInfoCard* m_updateCard;
     Section*        m_optionsSection;
+    RowComboBox*    m_channelCombo;
 };
 
 } // namespace
