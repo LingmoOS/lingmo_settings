@@ -1,3 +1,15 @@
+lingmo-settings (5.0.7+lingmo5u1) unstable; urgency=medium
+
+  * update page: replace placeholder "Advanced options" navigation item
+    with a working release channel selector (Stable/Beta/Nightly) wired
+    to UpdateStatus::setChannel(); kept in sync with the service on every
+    refresh(). Add footnote explaining each channel.
+  * update page: change header icon color by state — green when up to
+    date, blue while checking or updating, red on error.
+  * update page: add missing update.svg sidebar icon.
+
+ -- Lingmo OS Team <team@lingmo.org>  Thu, 05 Nov 2026 07:10:00 +0800
+
 lingmo-settings (5.0.6+lingmo5u1) unstable; urgency=medium
 
   * desktop widgets page: add "New icon position" combo box (Top Right,
