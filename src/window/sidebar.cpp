@@ -38,6 +38,25 @@ static bool windowActive(const View* view)
     return !window || window->isActive();
 }
 
+// Sidebar tiles use the live system accent in both normal and selected states.
+// Keep the shared RowIcon's semantic colours for status icons inside pages.
+class SidebarIcon : public RowIcon
+{
+public:
+    explicit SidebarIcon(const std::string& glyph)
+        : RowIcon(glyph, Theme::current().highlight)
+    {
+    }
+
+protected:
+    void paint(Painter& painter) override
+    {
+        const Color fill = Theme::current().highlight;
+        painter.fillRoundedRect(localRect(), 6,
+                                LinearGradient::vertical(localRect(), fill.lighter(1.15), fill));
+    }
+};
+
 // One entry: its tile and title, with the press and current backgrounds.
 class SidebarItem : public View
 {
@@ -45,9 +64,7 @@ public:
     explicit SidebarItem(const PageInfo& page)
         : m_page(page)
     {
-        // The tile stays quiet when idle; the current row keeps the accent.
-        m_icon = addChild<RowIcon>(page.icon, color(SettingsColor::SidebarIconTile),
-                                   Theme::current().highlight);
+        m_icon = addChild<SidebarIcon>(page.icon);
         m_title = addChild<Label>(tr(page.title.c_str()));
         m_title->setFontSize(metrics::points(kItemPointSize));
         m_title->setVerticallyCentered(true);

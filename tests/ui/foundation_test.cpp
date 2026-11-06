@@ -11,6 +11,8 @@
 #include "ui/layout.h"
 #include "ui/test_input.h"
 #include "ui/window.h"
+#include "ui/theme.h"
+#include "widgets/rowicon.h"
 #include "widgets/card.h"
 #include "widgets/listrow.h"
 #include "window/page.h"
@@ -205,4 +207,37 @@ TEST(ListRow, KeepsTheRowHeights)
     EXPECT_EQ(windowRect(window, "plain").height, 44);
     EXPECT_TRUE(isHidden(window, "empty"));
     EXPECT_EQ(windowRect(window, "info").y, 44);
+}
+
+TEST(SidebarAccent, SelectedAndNormalTilesFollowThemeChanges)
+{
+    const Theme original = Theme::current();
+    struct Restore { Theme theme; ~Restore() { Theme::setCurrent(theme); } } restore{original};
+    SettingsWindow settings;
+    settings.reveal();
+    settings.switchToPage("update");
+    auto& window = settings.window();
+    std::function<View*(View*, const std::string&)> find = [&](View* root, const std::string& name) -> View* {
+        if (root->name() == name) return root;
+        for (const auto& child : root->children()) if (auto* result = find(child.get(), name)) return result;
+        return nullptr;
+    };
+    for (bool dark : {false, true}) for (Color accent : {accent::red, accent::green}) {
+        Theme theme = dark ? Theme::dark() : Theme::light(); theme.highlight = accent; Theme::setCurrent(theme);
+        window.grab();
+        for (const auto* name : {"sidebar:update", "sidebar:about"}) {
+            auto* row = find(window.contentView(), name); ASSERT_NE(row, nullptr);
+            RowIcon* icon = nullptr;
+            for (const auto& child : row->children()) if (auto* tile = dynamic_cast<RowIcon*>(child.get())) icon = tile;
+            ASSERT_NE(icon, nullptr);
+            PointF point{12, 21};
+            for (View* node = icon; node; node = node->parent()) point += node->geometry().topLeft();
+            const auto image = window.grab();
+            const int x = int(point.x * window.scale()), y = int(point.y * window.scale());
+            ASSERT_GE(x, 0); ASSERT_GE(y, 0); ASSERT_LT(x, image.width()); ASSERT_LT(y, image.height());
+            const auto pixel = image.pixel(x, y);
+            if (accent.r > accent.g) EXPECT_GT(pixel.r, pixel.g);
+            else EXPECT_GT(pixel.g, pixel.r);
+        }
+    }
 }

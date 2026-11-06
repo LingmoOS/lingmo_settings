@@ -1,3 +1,9 @@
+lingmo-settings (5.0.8+lingmo5u2) unstable; urgency=medium
+
+  * fix: improve update feedback and theme sidebar icons.
+
+ -- Lingmo OS Team <team@lingmo.org>  Sat, 07 Nov 2026 12:00:00 +0800
+
 lingmo-settings (5.0.8+lingmo5u1) unstable; urgency=medium
 
   * update page: show "service unavailable" state when lingmo-services is

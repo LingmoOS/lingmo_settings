@@ -176,6 +176,7 @@ private:
         textCol->setLayoutHints({.fillWidth = true, .verticalAlignment = Alignment::Center});
 
         m_statusLabel = textCol->addChild<Label>();
+        m_statusLabel->setName("update:status");
         m_statusLabel->setLayoutHints({.fillWidth = true});
 
         m_progressBar = textCol->addChild<ProgressBar>();
@@ -187,6 +188,7 @@ private:
 
         // Right: action button
         m_actionButton = row->addChild<Button>();
+        m_actionButton->setName("update:action");
         m_actionButton->setLayoutHints({.verticalAlignment = Alignment::Center});
         m_actionButton->onClicked = [this] { onActionClicked(); };
     }
@@ -213,6 +215,7 @@ private:
         channelRow->setInteractive(false);
         m_channelCombo = channelRow->addContent<RowComboBox>(
             std::vector<std::string>{tr("Stable"), tr("Beta"), tr("Nightly")});
+        m_channelCombo->setName("update:channel-combo");
         m_channelCombo->onActivated = [this](int index) {
             m_status->setChannel(index);
         };
@@ -235,6 +238,7 @@ private:
             m_updateCard->setVisible(false);
             m_actionButton->setText(tr("Check for updates"));
             m_actionButton->setEnabled(false);
+            m_channelCombo->setEnabled(false);
             return;
         }
 
@@ -247,13 +251,20 @@ private:
         m_progressBar->setVisible(false);
         m_subtitleLabel->setVisible(true);
         m_updateCard->setVisible(false);
-        m_actionButton->setEnabled(true);
+        m_actionButton->setEnabled(!m_status->isRequestPending());
+        m_channelCombo->setEnabled(!m_status->isRequestPending() && state != update::State::Checking && state != update::State::Upgrading);
 
         // Sync the channel combo to the current service value.
         m_channelCombo->setCurrentIndex(int(m_status->channel()));
 
         switch (state) {
         case update::State::Idle:
+            m_headerIcon->set("update.svg", Theme::current().highlight);
+            m_statusLabel->setText(tr("Check for updates"));
+            m_subtitleLabel->setText(lastCheckStr);
+            m_actionButton->setText(tr("Check for updates"));
+            break;
+
         case update::State::UpToDate:
             m_headerIcon->set("update.svg", Color::rgb(0x34C759));
             m_statusLabel->setText(tr("You're up to date"));
@@ -300,6 +311,9 @@ private:
             m_headerIcon->set("update.svg", Color::rgb(0x0067FF));
             refreshProgress();
             m_actionButton->setEnabled(false);
+            m_updateCard->setTitle(tr("Software update"));
+            m_updateCard->setSizeText(m_status->newVersion());
+            m_updateCard->setBody(m_status->changelogText());
             m_updateCard->setVisible(true);
             break;
 
@@ -321,10 +335,26 @@ private:
             }
             break;
         }
+        if (!m_status->requestError().empty()) {
+            m_statusLabel->setText(tr("Update failed!"));
+            m_updateCard->setTitle(tr("Failure log"));
+            m_updateCard->setSizeText({});
+            m_updateCard->setBody(m_status->requestError());
+            m_updateCard->setVisible(true);
+        }
+        if (m_status->isRequestPending()) {
+            m_statusLabel->setText(tr("Requesting…"));
+            m_updateCard->setVisible(false);
+            m_progressBar->setIndeterminate(true);
+            m_progressBar->setVisible(true);
+            m_actionButton->setEnabled(false);
+            m_actionButton->setText(tr("Requesting…"));
+        }
     }
 
     void refreshProgress()
     {
+        if (!m_status->isAvailable() || m_status->state() != update::State::Upgrading) return;
         const int phase   = m_status->upgradePhase();
         const int percent = m_status->upgradeProgress();
 
@@ -346,11 +376,18 @@ private:
             m_progressBar->setValue(percent >= 0 ? percent / 100.0 : 0.0);
             m_progressBar->setVisible(true);
             m_actionButton->setText(tr("Installing"));
+        } else {
+            m_statusLabel->setText(tr("Updating"));
+            m_subtitleLabel->setVisible(false);
+            m_progressBar->setIndeterminate(true);
+            m_progressBar->setVisible(true);
+            m_actionButton->setText(tr("Updating"));
         }
     }
 
     void onActionClicked()
     {
+        if (!m_status->isAvailable() || m_status->isRequestPending()) return;
         const update::State state = m_status->state();
         if (state == update::State::SystemUpgrade || state == update::State::SoftwareUpdate) {
             m_status->startUpgrade();
