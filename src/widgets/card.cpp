@@ -27,7 +27,7 @@ Card::Card(Style style)
 void Card::paint(Painter& painter)
 {
     const Theme& theme = Theme::current();
-    painter.drawRoundedRect(localRect(), {theme.bigRadius, 0, themeCorners()}, theme.secondBackground);
+    painter.drawRoundedRect(localRect(), {18, 0, themeCorners()}, theme.darkMode ? theme.secondBackground : theme.background);
 }
 
 

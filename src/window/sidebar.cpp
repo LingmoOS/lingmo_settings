@@ -27,9 +27,9 @@ using Lingmo::i18n::tr;
 
 namespace settings {
 
-static constexpr double kSearchHeight = 28;
+static constexpr double kSearchHeight = 34;
 static constexpr double kTitlePointSize = 12;
-static constexpr double kItemPointSize = 8;
+static constexpr double kItemPointSize = 10;
 static constexpr double kIconTile = 24;
 
 static bool windowActive(const View* view)

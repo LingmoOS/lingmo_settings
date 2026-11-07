@@ -29,6 +29,9 @@ Section::Section(std::string title)
 {
     setSpacing(metrics::sectionLabelSpacing);
     m_title = addChild<SectionLabel>(std::move(title));
+    m_title->setColor(ColorId::Text);
+    m_title->label()->setWeight(600);
+    m_title->label()->setFontSize(14);
 }
 
 } // namespace settings

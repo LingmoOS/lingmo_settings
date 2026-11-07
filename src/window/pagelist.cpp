@@ -39,10 +39,10 @@ static std::vector<PageInfo> makePages()
     add({.id = "background", .name = "background", .title = trNoop("Wallpaper"), .icon = "wallpaper.svg",
          .iconColor = Color::rgb(0x34B4A7), .category = trNoop("Desktop"),
          .keywords = trNoop("background, desktop picture, image")});
-    add({.id = "dock", .name = "dock", .title = trNoop("Dock"), .icon = "dock.svg",
+    add({.id = "dock", .name = "dock", .title = trNoop("Desktop & Dock"), .icon = "dock.svg",
          .iconColor = Color::rgb(0x8585FC), .category = trNoop("Desktop"),
          .keywords = trNoop("taskbar, position, size, auto hide, glass effect")});
-    add({.id = "statusbar", .name = "statusbar", .title = trNoop("Top Bar"), .icon = "topbar.svg",
+    add({.id = "statusbar", .name = "statusbar", .title = trNoop("Menu Bar"), .icon = "topbar.svg",
          .iconColor = Color::rgb(0x8585FC), .category = trNoop("Desktop"),
          .keywords = trNoop("top bar, panel, blur, transparency")});
     add({.id = "desktopwidgets", .name = "desktopwidgets", .title = trNoop("Desktop Widgets"),

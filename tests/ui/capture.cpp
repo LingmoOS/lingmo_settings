@@ -3,6 +3,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include <cstdio>
+#include <cstdlib>
+#include <clocale>
+#include <libintl.h>
+#include "base/i18n.h"
 #include <string>
 
 #include "ui/application.h"
@@ -29,6 +33,7 @@ int main(int argc, char** argv)
     }
     Application application(argc, argv, Application::Platform::Headless);
     settings::setDataDirectory(SETTINGS_SOURCE_DIR);
+    if(const char* locale=std::getenv("SETTINGS_CAPTURE_LOCALE_DIR")){setenv("LANGUAGE","zh_CN",1);setlocale(LC_ALL,"en_US.UTF-8");Lingmo::i18n::setDomain("lingmo-settings");bindtextdomain("lingmo-settings",locale);}
     const std::string directory = argv[1];
     std::vector<std::string> ids;
     for (int i = 2; i < argc; ++i)
@@ -40,7 +45,9 @@ int main(int argc, char** argv)
     const Theme light = Theme::current();
     int failures = 0;
     for (const auto& [mode, theme] : {std::pair{"light", light}, std::pair{"dark", Theme::dark()}}) {
-        Theme::setCurrent(theme);
+        auto captureTheme=theme;
+        if(const char* font=std::getenv("SETTINGS_CAPTURE_FONT"))captureTheme.fontFamily=font;
+        Theme::setCurrent(captureTheme);
         for (const double scale : {1.0, 1.5}) {
             for (const std::string& id : ids) {
                 const settings::PageInfo* page = settings::findPage(id);
@@ -51,7 +58,7 @@ int main(int argc, char** argv)
                 }
                 settings::SettingsWindow window;
                 window.window().setScale(scale);
-                window.window().resize({900, 820});
+                window.window().resize({1000, 820});
                 if (!page->name.empty())
                     window.switchToPage(page->name);
                 else {

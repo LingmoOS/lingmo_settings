@@ -4,6 +4,8 @@
 
 #include "widgets/imageselectionitem.h"
 
+#include <algorithm>
+
 #include "ui/label.h"
 #include "ui/painter.h"
 #include "ui/cell_layout.h"
@@ -23,9 +25,10 @@ namespace settings {
 class SelectionPreview : public View
 {
 public:
-    SelectionPreview(SizeF size, double inset)
+    SelectionPreview(SizeF size, double inset, ImageSelectionItem::PreviewFit fit = ImageSelectionItem::PreviewFit::Center)
         : m_size(size)
         , m_inset(inset)
+        , m_fit(fit)
     {
         setLayoutHints({.preferredWidth = size.width, .preferredHeight = size.height});
     }
@@ -38,7 +41,13 @@ public:
     void setIcon(std::unique_ptr<View> icon)
     {
         m_icon = icon.get();
-        addChild(std::move(icon));
+        if (m_fit == ImageSelectionItem::PreviewFit::Cover) {
+            m_crop = addChild<View>();
+            m_crop->setClipsChildren(true);
+            m_crop->addChild(std::move(icon));
+        } else {
+            addChild(std::move(icon));
+        }
     }
 
     void setChecked(bool checked)
@@ -59,8 +68,23 @@ protected:
         }
         if (m_icon) {
             const SizeF icon = m_icon->sizeHint();
-            m_icon->setGeometry({rounding::centeredStart(bounds.width, icon.width),
-                                 rounding::centeredStart(bounds.height, icon.height), icon.width, icon.height});
+            if (m_crop) {
+                // Keep a fixed inner edge in both states. The image fills it
+                // with aspect-preserving overscan; only this host rounds it.
+                const double edge = 2;
+                const auto content = bounds.shrunk(Margins::all(edge));
+                m_crop->setGeometry(content);
+                m_crop->setChildClipRadius(std::max(0.0, Theme::current().bigRadius - edge));
+                const double scale = std::max(content.width / std::max(1.0, icon.width),
+                                              content.height / std::max(1.0, icon.height));
+                const SizeF enlarged{icon.width * scale, icon.height * scale};
+                m_icon->setGeometry({(content.width - enlarged.width) / 2,
+                                     (content.height - enlarged.height) / 2,
+                                     enlarged.width, enlarged.height});
+            } else {
+                m_icon->setGeometry({rounding::centeredStart(bounds.width, icon.width),
+                                     rounding::centeredStart(bounds.height, icon.height), icon.width, icon.height});
+            }
         }
     }
 
@@ -69,13 +93,15 @@ protected:
         if (!m_checked)
             return;
         const Theme& theme = Theme::current();
-        painter.drawRoundedRect(localRect(), {theme.bigRadius, -m_inset, themeCorners()}, Color{0, 0, 0, 0}, 2,
+        painter.drawRoundedRect(localRect(), {theme.bigRadius, -m_inset, m_crop ? Corners::Circular : themeCorners()}, Color{0, 0, 0, 0}, 2,
                                 theme.highlight);
     }
 
 private:
     SizeF m_size;
     double m_inset;
+    ImageSelectionItem::PreviewFit m_fit;
+    View* m_crop = nullptr;
     Picture* m_picture = nullptr;
     View* m_icon = nullptr;
     bool m_checked = false;
@@ -90,10 +116,10 @@ ImageSelectionItem::ImageSelectionItem(std::string path, std::string text, SizeF
 }
 
 ImageSelectionItem::ImageSelectionItem(std::unique_ptr<View> icon, std::string text, SizeF previewSize,
-                                       double previewInset)
+                                       double previewInset, PreviewFit fit)
 {
     m_layout = addChild<ColumnLayout>();
-    m_preview = m_layout->addChild<SelectionPreview>(previewSize, previewInset);
+    m_preview = m_layout->addChild<SelectionPreview>(previewSize, previewInset, fit);
     m_preview->setIcon(std::move(icon));
     build(std::move(text));
 }

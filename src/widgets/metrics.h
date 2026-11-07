@@ -19,7 +19,7 @@ inline constexpr double l = 16;
 inline constexpr double xl = 24;
 inline constexpr double xxl = 32;
 
-inline constexpr double headerTitlePointSize = 11;
+inline constexpr double headerTitlePointSize = 13;
 
 // Page: the scroll area's margins and the rhythm between its sections.
 inline constexpr double pageMargin = xl;
@@ -37,7 +37,7 @@ inline constexpr double cardVerticalPadding = m;
 inline constexpr double cardSpacing = m;
 
 // Row inside a card.
-inline constexpr double rowHeight = 44;
+inline constexpr double rowHeight = 48;
 // For a row holding a slider or another control taller than a switch: the
 // extra height keeps the control from crowding the row's edges.
 inline constexpr double controlRowHeight = 52;
@@ -60,9 +60,9 @@ inline constexpr double formColumnSpacing = xl;
 inline constexpr double formRowSpacing = l;
 
 // Sidebar.
-inline constexpr double sidebarWidth = 230;
+inline constexpr double sidebarWidth = 246;
 inline constexpr double sidebarMargin = m;
-inline constexpr double sidebarItemHeight = 36;
+inline constexpr double sidebarItemHeight = 40;
 // The space above and below the 24 px icon tile, so the tile sits in an even inset.
 inline constexpr double sidebarItemPadding = (sidebarItemHeight - 24) / 2;
 inline constexpr double sidebarItemSpacing = xxs;

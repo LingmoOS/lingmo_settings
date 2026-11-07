@@ -2815,3 +2815,63 @@ msgstr "通知中心"
 
 msgid "Click a size to add to Notification Center. Open it again to see changes."
 msgstr "点按尺寸添加到通知中心，下次打开通知中心即可看到更改。"
+
+msgid "Desktop & Dock"
+msgstr "桌面与程序坞"
+
+msgid "Menu Bar"
+msgstr "菜单栏"
+
+msgid "Theme"
+msgstr "主题"
+
+msgid "Automatic keeps widgets colorful on the active desktop and uses monochrome in the background."
+msgstr "桌面处于活动状态时使用全彩，切换到其他窗口后自动使用单色。"
+
+msgid "Desktop surfaces"
+msgstr "桌面界面"
+
+msgid "Text and icons"
+msgstr "文字与图标"
+
+msgid "Dock behavior"
+msgstr "程序坞行为"
+
+msgid "Automatically hide the Dock"
+msgstr "自动隐藏程序坞"
+
+msgid "Desktop and widgets"
+msgstr "桌面与小组件"
+
+msgid "Widget settings"
+msgstr "小组件设置"
+
+msgid "Arrange desktop widgets, choose their appearance, and manage the separate Notification Center layout."
+msgstr "排列桌面小组件、选择显示风格，并管理通知中心的独立布局。"
+
+msgid "Menu bar background"
+msgstr "菜单栏背景"
+
+msgid "Clear"
+msgstr "通透"
+
+msgid "Tinted"
+msgstr "着色"
+
+msgid "Menu bar controls"
+msgstr "菜单栏控制项"
+
+msgid "App menus appear on the left. System controls and Notification Center are on the right."
+msgstr "应用菜单显示在左侧，系统控制项和通知中心显示在右侧。"
+
+msgid "Clock options"
+msgstr "时钟选项"
+
+msgid "Battery options"
+msgstr "电池选项"
+
+msgid "Show battery percentage"
+msgstr "显示电池百分比"
+
+msgid "Background details"
+msgstr "背景细节"

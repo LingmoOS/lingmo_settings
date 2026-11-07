@@ -13,6 +13,8 @@
 #include "ui/switch.h"
 #include "ui/test_input.h"
 #include "widgets/sliderrow.h"
+#include "widgets/rowcombobox.h"
+#include "window/page.h"
 
 using namespace Lingmo::ui;
 using settings::SliderRow;
@@ -35,6 +37,10 @@ void expectDragHolds(PageFixture& page, const std::string& name, double fraction
     Window& window = page.window->window();
     auto* row = findView<SliderRow>(window.contentView(), name);
     ASSERT_NE(row, nullptr);
+    auto* pageView=page.window->currentPage();
+    const auto position=pageView->contentView()->mapFromWindow(row->mapToWindow({0,0}));
+    pageView->ensureVisible({position.x,position.y,row->geometry().width,row->geometry().height});
+    window.grab();
     Slider& slider = *row->slider();
     const double before = row->value();
 
@@ -55,9 +61,9 @@ TEST(DockPage, HasEveryControl)
     PageFixture page("dock");
     EXPECT_EQ(page.count("settings::ImageSelectionItem"), 3);
     EXPECT_EQ(page.count("settings::SliderRow"), 3);
-    EXPECT_EQ(page.count("SegmentedControl"), 1);
-    EXPECT_EQ(page.count("settings::NavigationItem"), 1);
-    EXPECT_EQ(page.count("settings::SwitchRow"), 2);
+    EXPECT_NE(findView<settings::RowComboBox>(page.window->window().contentView(), "dock:visibility"), nullptr);
+    EXPECT_EQ(page.count("settings::NavigationItem"), 3);
+    EXPECT_EQ(page.count("settings::SwitchRow"), 4);
 }
 
 TEST(DockPage, SizeStaysWhereItIsDragged)

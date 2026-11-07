@@ -6,6 +6,9 @@
 #include <functional>
 
 #include "base/i18n.h"
+#include "base/settings.h"
+#include "base/paths.h"
+#include "widgets/choicerow.h"
 #include "lingmo/appearance/appearance.h"
 #include "ui/icon.h"
 #include "ui/layout.h"
@@ -58,7 +61,7 @@ public:
     // The ring sits smallSpacing inside the cell, the dot as much inside the ring.
     SizeF sizeHint() const override
     {
-        const double side = 30 + Theme::current().largeSpacing * 2;
+        const double side = 40;
         return {side, side};
     }
     bool acceptsPointer() const override { return true; }
@@ -69,7 +72,7 @@ protected:
     void layout() override
     {
         const Theme& theme = Theme::current();
-        const RectF dot = localRect().shrunk(Margins::all(2 * theme.smallSpacing));
+        const RectF dot = localRect().shrunk(Margins::all(8));
         const double size = dot.height * 0.6;
         m_check->setSize(size);
         m_check->setColor(theme.highlightedText);
@@ -80,12 +83,12 @@ protected:
     void paint(Painter& painter) override
     {
         const Theme& theme = Theme::current();
-        const RectF ring = localRect().shrunk(Margins::all(theme.smallSpacing));
+        const RectF ring = localRect().shrunk(Margins::all(4));
         const RoundedShape circle{ring.width / 2, 0, Corners::Circular};
         if (m_checked || m_pressed)
             painter.drawRoundedRect(ring, circle, Color{0, 0, 0, 0}, 3, m_color.withAlpha(m_pressed ? 0.6 : 0.4));
-        painter.drawRoundedRect(ring.shrunk(Margins::all(theme.smallSpacing)),
-                                {circle.radius, theme.smallSpacing, Corners::Circular}, m_color);
+        painter.drawRoundedRect(ring.shrunk(Margins::all(4)),
+                                {circle.radius, 4, Corners::Circular}, m_color);
     }
 
     void pointerPress(const PointerEvent& event) override
@@ -119,34 +122,34 @@ public:
     explicit AppearancePage(SettingsWindow& window)
         : Page(window, tr("Appearance"))
     {
-        Section* modes = content()->addChild<Section>(tr("Appearance"));
-        Card* modeCard = modes->addChild<Card>();
-        RowLayout* tiles = modeCard->addChild<RowLayout>();
-        tiles->setSpacing(metrics::tileSpacing);
-        // The 100x68 artwork at its own size inside the 4px inset.
-        const SizeF preview{108, 76};
-        m_light = tiles->addChild<ImageSelectionItem>(dataPath("images/light_mode.svg"), tr("Light"), preview);
-        m_light->onClicked = [this] { chooseDarkMode(false); };
-        m_dark = tiles->addChild<ImageSelectionItem>(dataPath("images/dark_mode.svg"), tr("Dark"), preview);
-        m_dark->onClicked = [this] { chooseDarkMode(true); };
-        m_auto = tiles->addChild<ImageSelectionItem>(dataPath("images/auto_mode.svg"), tr("Auto"), preview);
-        m_auto->onClicked = [this] { m_appearance.setDarkModeSchedule(Appearance::SunsetToSunrise); };
-
-        Section* accents = content()->addChild<Section>(tr("Accent color"));
-        Card* accentCard = accents->addChild<Card>();
-        Row* swatches = accentCard->addChild<Row>();
-        // The ring sits smallSpacing inside its cell; it, like a preview's
-        // selection ring, starts on the text column.
-        LayoutHints swatchHints{.fillWidth = true};
-        swatchHints.margins.left = -Theme::current().smallSpacing;
-        swatches->setLayoutHints(swatchHints);
-        for (size_t i = 0; i < kAccentColors.size(); ++i) {
-            AccentSwatch* swatch = swatches->addChild<AccentSwatch>(kAccentColors[i]);
-            swatch->onClicked = [this, i] { m_appearance.setAccentColor(int(i)); };
-            m_swatches.push_back(swatch);
+        Card* modeCard = content()->addChild<Card>(Card::Style::List);
+        auto* modes=modeCard->addChild<ChoiceRow>(tr("Appearance"));
+        const SizeF preview{92,64};
+        m_auto=modes->options()->addChild<ImageSelectionItem>(dataPath("images/auto_mode.svg"),tr("Auto"),preview);
+        m_light=modes->options()->addChild<ImageSelectionItem>(dataPath("images/light_mode.svg"),tr("Light"),preview);
+        m_dark=modes->options()->addChild<ImageSelectionItem>(dataPath("images/dark_mode.svg"),tr("Dark"),preview);
+        m_auto->onClicked=[this]{m_appearance.setDarkModeSchedule(Appearance::SunsetToSunrise);};
+        m_light->onClicked=[this]{chooseDarkMode(false);};m_dark->onClicked=[this]{chooseDarkMode(true);};
+        Section* theme=content()->addChild<Section>(tr("Theme"));
+        Card* accentCard=theme->addChild<Card>(Card::Style::List);
+        auto* accents=accentCard->addChild<ChoiceRow>(tr("Accent color"));accents->options()->setSpacing(0);
+        for(size_t i=0;i<kAccentColors.size();++i){auto* swatch=accents->options()->addChild<AccentSwatch>(kAccentColors[i]);swatch->onClicked=[this,i]{m_appearance.setAccentColor(int(i));};m_swatches.push_back(swatch);}
+        Card* styleCard=theme->addChild<Card>(Card::Style::List);
+        auto* styles=styleCard->addChild<ChoiceRow>(tr("Widget color style"));
+        const char* names[]={tr("Automatic"),tr("Monochrome"),tr("Full Color")};
+        for(int i=0;i<3;++i){
+            auto* choice=styles->options()->addChild<ImageSelectionItem>(std::make_unique<ShellPreview>(i==0?ShellPreview::Style::WidgetAutomatic:i==1?ShellPreview::Style::WidgetMonochrome:ShellPreview::Style::WidgetColor),names[i],SizeF{92,64},0,ImageSelectionItem::PreviewFit::Cover);
+            choice->setName("appearance:widget-style-"+std::to_string(i));
+            choice->onClicked=[this,i]{Lingmo::base::Settings config(Lingmo::base::paths::lingmoConfig("filemanager"));config.setValue("DesktopWidgets/colorMode",i);config.sync();Lingmo::base::dbus::Proxy(Lingmo::base::dbus::Connection::session(),"org.lingmo.FileManager","/FileManager","org.lingmo.FileManager").send("RefreshWidgets");update();};
+            m_widgetStyles.push_back(choice);
         }
-
-        Card* links = content()->addChild<Card>(Card::Style::List);
+        theme->addChild<Footnote>(tr("Automatic keeps widgets colorful on the active desktop and uses monochrome in the background."));
+        auto* surfaces=content()->addChild<Section>(tr("Desktop surfaces"));
+        auto* surfaceCard=surfaces->addChild<Card>(Card::Style::List);
+        auto* menu=surfaceCard->addChild<NavigationItem>(tr("Menu Bar"));menu->onClicked=[&window]{window.switchToPage("statusbar");};
+        auto* dock=surfaceCard->addChild<NavigationItem>(tr("Desktop & Dock"));dock->onClicked=[&window]{window.switchToPage("dock");};
+        Section* details=content()->addChild<Section>(tr("Text and icons"));
+        Card* links = details->addChild<Card>(Card::Style::List);
         const std::array<std::tuple<const char*, const char*, Color, const char*>, 3> pages = {
                 std::tuple{tr("Fonts"), "fonts.svg", Color::rgb(0xFE8433), "fonts"},
                 {tr("Icon Theme"), "icontheme.svg", Color::rgb(0x2EC347), "icontheme"},
@@ -183,6 +186,8 @@ private:
     {
         const Theme& theme = Theme::current();
         const bool automatic = autoDarkMode();
+        const int widgetStyle=int(Lingmo::base::Settings(Lingmo::base::paths::lingmoConfig("filemanager")).intValue("DesktopWidgets/colorMode",0));
+        for(size_t i=0;i<m_widgetStyles.size();++i)m_widgetStyles[i]->setChecked(int(i)==widgetStyle);
         m_light->setChecked(!automatic && !theme.darkMode);
         m_dark->setChecked(!automatic && theme.darkMode);
         m_auto->setChecked(automatic);
@@ -196,6 +201,7 @@ private:
     ImageSelectionItem* m_dark;
     ImageSelectionItem* m_auto;
     std::vector<AccentSwatch*> m_swatches;
+    std::vector<ImageSelectionItem*> m_widgetStyles;
 };
 
 } // namespace

@@ -71,7 +71,8 @@ Page::~Page() = default;
 // Opaque: only the sidebar shows the window's frosted backdrop.
 void Page::paint(Painter& painter)
 {
-    painter.fillRect(localRect(), Theme::current().background);
+    const auto& theme=Theme::current();
+    painter.fillRect(localRect(), theme.darkMode ? theme.background : theme.secondBackground);
 }
 
 PendingPage::PendingPage(SettingsWindow& window, std::string title)

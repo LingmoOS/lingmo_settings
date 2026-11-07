@@ -208,7 +208,7 @@ SettingsWindow::SettingsWindow()
     , m_revealTimer(std::make_unique<Lingmo::base::Timer>())
 {
     m_window->setTitle(tr("Settings"));
-    m_window->resize({900, 610});
+    m_window->resize({1000, 740});
     // Half of a 1280-wide screen, so the window can be split beside another.
     m_window->setMinimumSize({640, 600});
     // Under the key the Qt version's main.qml kept it.
@@ -423,10 +423,10 @@ void SettingsWindow::updateBackground()
             color(active ? ColorId::TranslucentWindowBackground : ColorId::TranslucentWindowBackgroundInactive));
         m_window->setTranslucentSubpixelText(true);
     }
-    m_root->backdropBase = theme.background;
+    m_root->backdropBase = theme.darkMode ? theme.background : theme.secondBackground;
     if (m_root->backdrop)
-        m_root->backdrop->setBaseColor(theme.background);
-    m_window->setBackgroundBlur({0, 0, size.width, size.height}, theme.windowRadius);
+        m_root->backdrop->setBaseColor(theme.darkMode ? theme.background : theme.secondBackground);
+    m_window->setBackgroundBlur({0, 0, sidebarWidth(m_window->scale()), size.height}, theme.windowRadius);
 }
 
 void SettingsWindow::switchToIndex(int index)

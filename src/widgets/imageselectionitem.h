@@ -25,11 +25,14 @@ class SelectionPreview;
 class ImageSelectionItem : public Lingmo::ui::View
 {
 public:
+    enum class PreviewFit { Center, Cover };
+
     // A picture filling the preview inside the ring's inset.
     ImageSelectionItem(std::string path, std::string text, Lingmo::ui::SizeF previewSize);
-    // A view of its own size centred in the preview, such as an icon.
+    // Center keeps an icon at its own size. Cover enlarges to fill and clips
+    // the artwork to a corner radius concentric with the selection ring.
     ImageSelectionItem(std::unique_ptr<Lingmo::ui::View> icon, std::string text, Lingmo::ui::SizeF previewSize,
-                       double previewInset = 4);
+                       double previewInset = 4, PreviewFit fit = PreviewFit::Center);
 
     void setChecked(bool checked);
     bool isChecked() const { return m_checked; }

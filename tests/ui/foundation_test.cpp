@@ -75,16 +75,16 @@ TEST_F(Fixture, SidebarLinesUpWithTheMetrics)
     const RectF search = windowRect(window(), "search");
     EXPECT_EQ(search.x, 12);
     EXPECT_EQ(search.y, 56);
-    EXPECT_EQ(search.width, 206);
-    EXPECT_EQ(search.height, 28);
-    // Wi-Fi opens first; its entry is 36 high and inset by the sidebar margin.
+    EXPECT_EQ(search.width, 222);
+    EXPECT_EQ(search.height, 34);
+    // Wi-Fi opens first; its entry is 40 high, inside the category panel inset.
     const RectF wifi = windowRect(window(), "sidebar:wlan");
-    EXPECT_EQ(wifi.x, 12);
-    EXPECT_EQ(wifi.width, 206);
-    EXPECT_EQ(wifi.height, 36);
+    EXPECT_EQ(wifi.x, 16);
+    EXPECT_EQ(wifi.width, 214);
+    EXPECT_EQ(wifi.height, 40);
     const RectF page = windowRect(window(), "page:wlan");
-    EXPECT_EQ(page.x, 230);
-    EXPECT_EQ(page.width, 670);
+    EXPECT_EQ(page.x, 246);
+    EXPECT_EQ(page.width, 654);
 }
 
 TEST_F(Fixture, HistoryGoesBackAndForward)
@@ -204,9 +204,9 @@ TEST(ListRow, KeepsTheRowHeights)
     window.setContentView(std::move(page));
     window.show();
     window.grab();
-    EXPECT_EQ(windowRect(window, "plain").height, 44);
+    EXPECT_EQ(windowRect(window, "plain").height, 48);
     EXPECT_TRUE(isHidden(window, "empty"));
-    EXPECT_EQ(windowRect(window, "info").y, 44);
+    EXPECT_EQ(windowRect(window, "info").y, 48);
 }
 
 TEST(SidebarAccent, SelectedAndNormalTilesFollowThemeChanges)

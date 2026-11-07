@@ -6,6 +6,11 @@
 #include <vector>
 
 #include "base/i18n.h"
+#include "base/settings.h"
+#include "base/paths.h"
+#include "widgets/choicerow.h"
+#include "widgets/rowcombobox.h"
+#include "widgets/rowicon.h"
 #include "pages/dock/docksettings.h"
 #include "ui/layout.h"
 #include "ui/cell_layout.h"
@@ -32,17 +37,17 @@ class DockPage : public Page
 {
 public:
     explicit DockPage(SettingsWindow& window)
-        : Page(window, tr("Dock"))
+        : Page(window, tr("Desktop & Dock"))
     {
-        Section* position = content()->addChild<Section>(tr("Position on screen"));
-        Card* positions = position->addChild<Card>();
-        RowLayout* tiles = positions->addChild<RowLayout>();
-        tiles->setSpacing(metrics::tileSpacing);
+        Section* position = content()->addChild<Section>(tr("Dock"));
+        Card* positions = position->addChild<Card>(Card::Style::List);
+        auto* choices=positions->addChild<ChoiceRow>(tr("Position on screen"));
+        auto* tiles=choices->options();
         const char* const names[] = {tr("Left"), tr("Bottom"), tr("Right")};
         const char* const pictures[] = {"images/dock_left.svg", "images/dock_bottom.svg", "images/dock_right.svg"};
         for (int i = 0; i < 3; ++i) {
             ImageSelectionItem* tile = tiles->addChild<ImageSelectionItem>(dataPath(pictures[i]), names[i],
-                                                                           SizeF{80, 80});
+                                                                           SizeF{92,64});
             tile->onClicked = [this, i] {
                 m_settings.setDirection(i);
                 updateDirection();
@@ -51,7 +56,7 @@ public:
         }
         updateDirection();
 
-        Card* sliders = content()->addChild<Card>(Card::Style::List);
+        Card* sliders = position->addChild<Card>(Card::Style::List);
         SliderRow* size = sliders->addChild<SliderRow>(tr("Size"));
         size->setName("dock:size");
         size->setCaptions(tr("Small"), tr("Huge"));
@@ -100,28 +105,34 @@ public:
             glass->setValue(m_settings.glassTint());
         };
 
-        Section* launch = content()->addChild<Section>(tr("Launch"));
+        Section* launch = content()->addChild<Section>(tr("Dock behavior"));
         Card* behaviour = launch->addChild<Card>(Card::Style::List);
         SwitchRow* bounce = behaviour->addChild<SwitchRow>(tr("Bounce on launch"));
         bounce->setName("dock:bounce");
         bounce->setChecked(m_settings.bounceOnLaunch());
         bounce->onToggled = [this](bool checked) { m_settings.setBounceOnLaunch(checked); };
 
-        Section* mode = content()->addChild<Section>(tr("Display mode"));
-        auto* visibility = mode->addChild<SegmentedControl>(
-                std::vector<std::string>{tr("Always show"), tr("Always hide"), tr("Smart hide")});
-        visibility->setLayoutHints({.fillWidth = true});
-        visibility->setCurrentIndex(m_settings.visibility());
-        visibility->onCurrentChanged = [this](int index) { m_settings.setVisibility(index); };
-
-        Card* corners = content()->addChild<Card>(Card::Style::List);
+        auto* visibilityRow=behaviour->addChild<ListRow>(tr("Automatically hide the Dock"));visibilityRow->setInteractive(false);
+        auto* visibility=visibilityRow->addContent<RowComboBox>(std::vector<std::string>{tr("Always show"),tr("Always hide"),tr("Smart hide")});
+        visibility->setName("dock:visibility");visibility->setCurrentIndex(m_settings.visibility());
+        visibility->onActivated=[this](int index){m_settings.setVisibility(index);};
+        Card* corners = launch->addChild<Card>(Card::Style::List);
         NavigationItem* hotCorners = corners->addChild<NavigationItem>(tr("Hot Corners"));
         hotCorners->onClicked = [&window] { window.pushPage("hotcorners"); };
 
-        Card* minimized = content()->addChild<Card>(Card::Style::List);
+        Card* minimized = launch->addChild<Card>(Card::Style::List);
         SwitchRow* area = minimized->addChild<SwitchRow>(tr("Minimized windows area"));
         area->setChecked(m_settings.minimizedArea());
         area->onToggled = [this](bool checked) { m_settings.setMinimizedArea(checked); };
+        Section* desktop=content()->addChild<Section>(tr("Desktop and widgets"));
+        auto* desktopCard=desktop->addChild<Card>(Card::Style::List);
+        auto* show=desktopCard->addChild<SwitchRow>(tr("Show widgets on desktop"));
+        show->setChecked(Lingmo::base::Settings(Lingmo::base::paths::lingmoConfig("filemanager")).boolValue("DesktopWidgets/visible",true));
+        show->onToggled=[](bool enabled){Lingmo::base::Settings config(Lingmo::base::paths::lingmoConfig("filemanager"));config.setValue("DesktopWidgets/visible",enabled);config.sync();Lingmo::base::dbus::Proxy(Lingmo::base::dbus::Connection::session(),"org.lingmo.FileManager","/FileManager","org.lingmo.FileManager").send("RefreshWidgets");};
+        auto* widgets=desktopCard->addChild<NavigationItem>(tr("Widget settings"));widgets->onClicked=[&window]{window.switchToPage("desktopwidgets");};
+        auto* wallpaper=desktopCard->addChild<NavigationItem>(tr("Wallpaper"));wallpaper->onClicked=[&window]{window.switchToPage("background");};
+        desktop->addChild<Footnote>(tr("Arrange desktop widgets, choose their appearance, and manage the separate Notification Center layout."));
+
     }
 
 private:

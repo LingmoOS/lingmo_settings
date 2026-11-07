@@ -12,6 +12,7 @@
 #include "ui/slider.h"
 #include "ui/test_input.h"
 #include "widgets/sliderrow.h"
+#include "window/page.h"
 
 using namespace Lingmo::ui;
 using settings::SliderRow;
@@ -34,6 +35,10 @@ void expectDragHolds(PageFixture& page, const std::string& name, double fraction
     Window& window = page.window->window();
     auto* row = findView<SliderRow>(window.contentView(), name);
     ASSERT_NE(row, nullptr);
+    auto* pageView=page.window->currentPage();
+    const auto position=pageView->contentView()->mapFromWindow(row->mapToWindow({0,0}));
+    pageView->ensureVisible({position.x,position.y,row->geometry().width,row->geometry().height});
+    window.grab();
     Slider& slider = *row->slider();
     const double before = row->value();
 
@@ -44,7 +49,7 @@ void expectDragHolds(PageFixture& page, const std::string& name, double fraction
     ASSERT_NE(dragged, before);
 
     waitFor([] { return false; }, std::chrono::milliseconds(600));
-    EXPECT_EQ(row->value(), dragged);
+    EXPECT_NEAR(row->value(), dragged, 1e-9);
 }
 
 } // namespace

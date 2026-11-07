@@ -36,7 +36,7 @@ class SettingsWindow
 public:
     // Room for the header buttons with as much space below them as above;
     // content starts under it.
-    static constexpr double headerHeight = 40;
+    static constexpr double headerHeight = 56;
 
     SettingsWindow();
     ~SettingsWindow();

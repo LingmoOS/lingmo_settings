@@ -1,3 +1,11 @@
+lingmo-settings (5.0.8+lingmo5u6) unstable; urgency=medium
+
+  * Redesign Appearance, Desktop & Dock and Menu Bar with grouped settings.
+  * Add distinct vector previews and aspect-fill cropping with matching corners.
+  * Update Chinese translations, layout tests and design documentation.
+
+ -- Lingmo OS Team <team@lingmo.org>  Sun, 08 Nov 2026 12:00:00 +0800
+
 lingmo-settings (5.0.8+lingmo5u5) unstable; urgency=medium
 
   * Add desktop and Notification Center widget visibility and color controls.
