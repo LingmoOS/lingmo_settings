@@ -2755,3 +2755,6 @@ msgstr "正在安装"
 
 msgid "system update, software update, upgrade, version, apt, packages"
 msgstr "系统更新, 软件更新, 升级, 版本, apt, 软件包"
+
+msgid "Open global search"
+msgstr "打开全局搜索"

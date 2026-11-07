@@ -40,6 +40,7 @@ static constexpr const char* kDesks = trNoop("Desks");
 static constexpr const char* kScreenshots = trNoop("Screenshots and Recording");
 static const Layout kLayouts[] = {
         {"toggle-app-list", kGeneral, trNoop("Open the launcher")},
+        {"toggle-search", kGeneral, trNoop("Open global search")},
         {"lock-screen", kGeneral, trNoop("Lock the screen")},
         {"toggle-clipboard-history", kGeneral, trNoop("Show the clipboard history")},
 
