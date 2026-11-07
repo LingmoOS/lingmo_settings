@@ -7,6 +7,8 @@
 #include <vector>
 
 #include "base/i18n.h"
+#include "base/dbus.h"
+#include "ui/button.h"
 #include "pages/input/checkrow.h"
 #include "pages/keyboard/inputmethod.h"
 #include "pages/keyboard/keyboard.h"
@@ -71,6 +73,29 @@ public:
     explicit KeyboardPage(SettingsWindow& window)
         : Page(window, tr("Keyboard"))
     {
+        auto* screenSection = content()->addChild<Section>(tr("Screen keyboard"));
+        auto* screenCard = screenSection->addChild<Card>(Card::Style::List);
+        auto* screenRow = screenCard->addChild<ListRow>(tr("Type using the mouse or touch screen"));
+        screenRow->setInteractive(false);
+        m_screenButton = screenRow->addContent<Button>(tr("Show keyboard"));
+        m_screenButton->setName("keyboard:screen-keyboard");
+        m_screenButton->setEnabled(false);
+        m_screenButton->onClicked = [this] {
+            auto* bus = base::dbus::Connection::session();
+            if (!bus) return;
+            base::dbus::Proxy keyboard(bus, "org.lingmo.ScreenKeyboard", "/org/lingmo/ScreenKeyboard", "org.lingmo.ScreenKeyboard");
+            m_screenRequest = keyboard.callAsync("show", [this](const base::dbus::Reply& reply) {
+                if (reply.isError()) m_screenNote->setText(tr("Screen keyboard is unavailable. Start a Lingmo desktop session."));
+            });
+        };
+        m_screenNote = screenSection->addChild<Footnote>(tr("Super+Ctrl+K toggles the keyboard. Select an input field before typing."));
+        if (auto* bus = base::dbus::Connection::session())
+            m_screenWatch = bus->watchName("org.lingmo.ScreenKeyboard", [this](const std::string& owner) {
+                m_screenButton->setEnabled(!owner.empty());
+                m_screenNote->setText(owner.empty() ? tr("Screen keyboard is unavailable. Start a Lingmo desktop session.")
+                    : tr("Super+Ctrl+K toggles the keyboard. Select an input field before typing."));
+            });
+
         Section* inputMethods = content()->addChild<Section>(tr("Input method"));
         m_noInputMethods = inputMethods->addChild<NoteCard>(
                 tr("Input methods can only be selected in a Lingmo Wayland session."));
@@ -172,6 +197,10 @@ private:
         m_rate->setValue(nearestStop(kRepeatIntervals, m_keyboard.repeatInterval()));
     }
 
+    Button* m_screenButton;
+    Footnote* m_screenNote;
+    base::dbus::NameWatch m_screenWatch;
+    base::dbus::PendingCall m_screenRequest;
     InputMethod m_inputMethod;
     Keyboard m_keyboard;
     base::Subscription m_inputMethodChanged;

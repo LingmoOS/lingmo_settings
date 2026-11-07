@@ -2758,3 +2758,21 @@ msgstr "系统更新, 软件更新, 升级, 版本, apt, 软件包"
 
 msgid "Open global search"
 msgstr "打开全局搜索"
+
+msgid "Screen keyboard"
+msgstr "屏幕键盘"
+
+msgid "Type using the mouse or touch screen"
+msgstr "使用鼠标或触摸屏输入"
+
+msgid "Show keyboard"
+msgstr "显示键盘"
+
+msgid "Screen keyboard is unavailable. Start a Lingmo desktop session."
+msgstr "屏幕键盘不可用，请启动 Lingmo 桌面会话。"
+
+msgid "Super+Ctrl+K toggles the keyboard. Select an input field before typing."
+msgstr "按 Super+Ctrl+K 显示或隐藏键盘。输入前请先选中输入框。"
+
+msgid "Toggle screen keyboard"
+msgstr "显示或隐藏屏幕键盘"
