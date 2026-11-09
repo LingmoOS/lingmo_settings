@@ -7,10 +7,12 @@
 #include "ui/button.h"
 #include "ui/label.h"
 #include "ui/window.h"
+#include "widgets/listrow.h"
 #include "window/page.h"
 #include "window/settingswindow.h"
 #include <chrono>
 #include <poll.h>
+#include <string>
 using namespace Lingmo;
 namespace {
 ui::View* find(ui::View* root, const std::string& name) {
@@ -24,15 +26,20 @@ bool wait(const std::function<bool()>& ready) {
     while (!ready() && std::chrono::steady_clock::now() < end) { pollfd fd{loop.fd(), POLLIN, 0}; ::poll(&fd, 1, 5); loop.dispatch(); }
     return ready();
 }
+std::string buttonText(ui::Button* button) {
+    for (const auto& child : button->children())
+        if (auto* label = dynamic_cast<ui::Label*>(child.get()))
+            return label->text();
+    return {};
 }
-TEST(UpdatePage, FailedRequestCanRetryAndUnavailableChannelIsDisabled) {
+}
+TEST(UpdatePage, FailedRequestCanRetry) {
     settings::SettingsWindow window;
     window.switchToPage("update"); window.reveal(); window.window().grab();
     auto* action = dynamic_cast<ui::Button*>(find(window.currentPage(), "update:action"));
     auto* status = dynamic_cast<ui::Label*>(find(window.currentPage(), "update:status"));
-    auto* channel = find(window.currentPage(), "update:channel-combo");
-    ASSERT_TRUE(action); ASSERT_TRUE(status); ASSERT_TRUE(channel);
-    EXPECT_FALSE(action->isEnabled()); EXPECT_FALSE(channel->isEnabled());
+    ASSERT_TRUE(action); ASSERT_TRUE(status);
+    EXPECT_FALSE(action->isEnabled());
     auto* bus = base::dbus::Connection::session(); ASSERT_TRUE(bus);
     int32_t state = 6; int calls = 0;
     base::dbus::Object object(bus, "/org/lingmo/Services/Update", "org.lingmo.Services.Update");
@@ -52,8 +59,53 @@ TEST(UpdatePage, FailedRequestCanRetryAndUnavailableChannelIsDisabled) {
     EXPECT_EQ(status->text(), "Update failed!");
     action->onClicked();
     ASSERT_TRUE(wait([&] { return calls == 2 && status->text() == "Checking for updates"; }));
-    EXPECT_FALSE(action->isEnabled()); EXPECT_FALSE(channel->isEnabled());
+    EXPECT_FALSE(action->isEnabled());
     bus->releaseName("org.lingmo.Services");
     ASSERT_TRUE(wait([&] { return status->text() == "Update service unavailable"; }));
-    EXPECT_FALSE(channel->isEnabled());
+    EXPECT_FALSE(action->isEnabled());
+}
+
+TEST(UpdatePage, AdvancedSettingsOpens) {
+    settings::SettingsWindow window;
+    window.switchToPage("update"); window.reveal(); window.window().grab();
+    auto* advanced = dynamic_cast<settings::NavigationItem*>(find(window.currentPage(), "update:advanced"));
+    ASSERT_TRUE(advanced);
+    advanced->onClicked();
+    ASSERT_NE(nullptr, window.currentPage());
+    EXPECT_EQ(window.currentPage()->title(), "Advanced Settings");
+}
+
+TEST(UpdatePage, InstalledUpdatePromptsForRestart) {
+    settings::SettingsWindow window;
+    window.switchToPage("update"); window.reveal(); window.window().grab();
+    auto* action = dynamic_cast<ui::Button*>(find(window.currentPage(), "update:action"));
+    auto* status = dynamic_cast<ui::Label*>(find(window.currentPage(), "update:status"));
+    ASSERT_TRUE(action); ASSERT_TRUE(status);
+
+    auto* bus = base::dbus::Connection::session(); ASSERT_TRUE(bus);
+    base::dbus::Object update(bus, "/org/lingmo/Services/Update", "org.lingmo.Services.Update");
+    update.addProperty("state", [] { return int32_t(7); });
+    update.addProperty("channel", [] { return int32_t(0); });
+    update.addProperty("newVersion", [] { return std::string("5.0"); });
+    update.addProperty("upgradableCount", [] { return int32_t(0); });
+    update.addProperty("changelogText", [] { return std::string(); });
+    update.addProperty("errorLog", [] { return std::string(); });
+    update.addSignal("stateChanged", "i");
+    ASSERT_TRUE(update.publish());
+    ASSERT_TRUE(bus->requestName("org.lingmo.Services"));
+
+    int reboots = 0;
+    base::dbus::Object session(bus, "/org/lingmo/Session", "org.lingmo.Session");
+    session.addMethod("reboot", [&] { ++reboots; });
+    ASSERT_TRUE(session.publish());
+    ASSERT_TRUE(bus->requestName("org.lingmo.Session"));
+
+    ASSERT_TRUE(wait([&] { return status->text() == "Restart required"; }));
+    EXPECT_EQ(buttonText(action), "Restart now");
+    ASSERT_TRUE(action->isEnabled());
+    action->onClicked();
+    ASSERT_TRUE(wait([&] { return reboots == 1; }));
+
+    bus->releaseName("org.lingmo.Session");
+    bus->releaseName("org.lingmo.Services");
 }

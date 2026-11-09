@@ -98,6 +98,10 @@ static std::vector<PageInfo> makePages()
          .keywords = trNoop("system update, software update, upgrade, version, apt, packages")});
 
     // Sub pages, opened from inside a sidebar page; search lists them after it.
+    add({.id = "update-advanced", .name = "update-advanced", .title = trNoop("Advanced Settings"),
+         .icon = "update.svg", .iconColor = Color::rgb(0x0067FF),
+         .keywords = trNoop("automatic checks, frequency, schedule, update time"),
+         .parentId = "update"});
     add({.id = "vpn", .name = "vpn", .title = trNoop("VPN"), .icon = "network-vpn",
          .iconColor = Color::rgb(0x48484C), .keywords = trNoop("VPN, WireGuard, OpenVPN, tunnel, network"),
          .parentId = "network"});

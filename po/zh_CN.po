@@ -2753,6 +2753,57 @@ msgstr "正在更新"
 msgid "Installing"
 msgstr "正在安装"
 
+msgid "Restart required"
+msgstr "需要重启"
+
+msgid "Updates are installed. Restart now to finish."
+msgstr "更新已安装，请立即重启以完成。"
+
+msgid "The update has been installed. Restart the computer to finish."
+msgstr "更新已安装，请重启电脑以完成。"
+
+msgid "Restart now"
+msgstr "立即重启"
+
+msgid "Could not restart the session."
+msgstr "无法重启会话。"
+
+msgid "Advanced Settings"
+msgstr "高级设置"
+
+msgid "Automatic checks"
+msgstr "自动检查"
+
+msgid "Automatically check for updates"
+msgstr "自动检查更新"
+
+msgid "Check frequency"
+msgstr "检查频率"
+
+msgid "Every hour"
+msgstr "每小时"
+
+msgid "Every 3 hours"
+msgstr "每 3 小时"
+
+msgid "Every 6 hours"
+msgstr "每 6 小时"
+
+msgid "Every 12 hours"
+msgstr "每 12 小时"
+
+msgid "Daily"
+msgstr "每天"
+
+msgid "Check time"
+msgstr "检查时间"
+
+msgid "Checks run in the background. When updates are available, a notification tells you."
+msgstr "在后台检查更新。有可用更新时，会通过通知提醒您。"
+
+msgid "automatic checks, frequency, schedule, update time"
+msgstr "自动检查, 频率, 计划, 更新时间"
+
 msgid "system update, software update, upgrade, version, apt, packages"
 msgstr "系统更新, 软件更新, 升级, 版本, apt, 软件包"
 

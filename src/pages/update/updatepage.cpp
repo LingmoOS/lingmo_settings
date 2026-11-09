@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+#include "base/dbus.h"
 #include "base/i18n.h"
 #include "base/signal.h"
 #include "lingmo/update/update_status.h"
@@ -16,10 +17,10 @@
 #include "ui/cell_layout.h"
 #include "ui/progress_bar.h"
 #include "ui/theme.h"
+#include "ui/window.h"
 #include "widgets/card.h"
 #include "widgets/listrow.h"
 #include "widgets/metrics.h"
-#include "widgets/rowcombobox.h"
 #include "widgets/rowicon.h"
 #include "widgets/sections.h"
 #include "window/page.h"
@@ -80,7 +81,8 @@ static std::string formatCheckTime(int64_t unixTime)
     return dateBuf;
 }
 
-// The update information card shown in SystemUpgrade/SoftwareUpdate/Error states.
+// The update information card shown in SystemUpgrade/SoftwareUpdate/
+// RestartRequired/Error states.
 class UpdateInfoCard : public Card
 {
 public:
@@ -146,7 +148,7 @@ public:
     {
         buildHeader();
         buildUpdateCard();
-        buildOptionsSection();
+        buildAdvancedSection();
 
         m_status = update::UpdateStatus::shared();
         m_subscriptions.push_back(m_status->changed.connect([this] { refresh(); }));
@@ -201,28 +203,17 @@ private:
         m_updateCard->setVisible(false);
     }
 
-    // ── options section ───────────────────────────────────────────────────────
-    void buildOptionsSection()
+    // ── advanced settings entry ──────────────────────────────────────────────
+    void buildAdvancedSection()
     {
-        m_optionsSection = content()->addChild<Section>(tr("More options"));
-        m_optionsSection->setName("update:options");
+        Section* section = content()->addChild<Section>(tr("More options"));
+        section->setName("update:options");
+        Card* card = section->addChild<Card>(Card::Style::List);
 
-        Card* card = m_optionsSection->addChild<Card>(Card::Style::List);
-
-        // Release channel selector
-        ListRow* channelRow = card->addChild<ListRow>(tr("Release channel"));
-        channelRow->setName("update:channel");
-        channelRow->setInteractive(false);
-        m_channelCombo = channelRow->addContent<RowComboBox>(
-            std::vector<std::string>{tr("Stable"), tr("Beta"), tr("Nightly")});
-        m_channelCombo->setName("update:channel-combo");
-        m_channelCombo->onActivated = [this](int index) {
-            m_status->setChannel(index);
-        };
-
-        m_optionsSection->addChild<Footnote>(
-            tr("Stable receives tested releases. Beta gets upcoming features early. "
-               "Nightly follows the development branch and may be unstable."));
+        NavigationItem* advanced = card->addChild<NavigationItem>(tr("Advanced Settings"));
+        advanced->setName("update:advanced");
+        advanced->setLeading<RowIcon>("update.svg", Color::rgb(0x0067FF));
+        advanced->onClicked = [this] { settingsWindow().pushPage("update-advanced"); };
     }
 
     // ── state refresh ─────────────────────────────────────────────────────────
@@ -230,6 +221,7 @@ private:
     {
         // Service not yet on the bus — grey out and disable until it appears.
         if (!m_status->isAvailable()) {
+            m_closeAfterUpgradeStart = false;
             m_headerIcon->set("update.svg", Color::rgb(0x8E8E93));
             m_statusLabel->setText(tr("Update service unavailable"));
             m_subtitleLabel->setText(tr("The system service is not running."));
@@ -238,11 +230,23 @@ private:
             m_updateCard->setVisible(false);
             m_actionButton->setText(tr("Check for updates"));
             m_actionButton->setEnabled(false);
-            m_channelCombo->setEnabled(false);
             return;
         }
 
         const update::State state = m_status->state();
+        if (m_closeAfterUpgradeStart) {
+            if (state == update::State::Upgrading) {
+                m_closeAfterUpgradeStart = false;
+                // The progress and the restart prompt are notifications now;
+                // the update keeps running in lingmo-services.
+                if (Lingmo::ui::Window* w = window())
+                    w->hide();
+            } else if (state == update::State::Error
+                       || state == update::State::RestartRequired
+                       || !m_status->requestError().empty()) {
+                m_closeAfterUpgradeStart = false;
+            }
+        }
         const int64_t lastCheck   = m_status->lastCheckTime();
         const std::string lastCheckStr = format(
             tr("Last checked: {time}"), {{"time", formatCheckTime(lastCheck)}});
@@ -252,10 +256,6 @@ private:
         m_subtitleLabel->setVisible(true);
         m_updateCard->setVisible(false);
         m_actionButton->setEnabled(!m_status->isRequestPending());
-        m_channelCombo->setEnabled(!m_status->isRequestPending() && state != update::State::Checking && state != update::State::Upgrading);
-
-        // Sync the channel combo to the current service value.
-        m_channelCombo->setCurrentIndex(int(m_status->channel()));
 
         switch (state) {
         case update::State::Idle:
@@ -314,6 +314,18 @@ private:
             m_updateCard->setTitle(tr("Software update"));
             m_updateCard->setSizeText(m_status->newVersion());
             m_updateCard->setBody(m_status->changelogText());
+            m_updateCard->setVisible(true);
+            break;
+
+        case update::State::RestartRequired:
+            m_headerIcon->set("update.svg", Color::rgb(0x34C759));
+            m_statusLabel->setText(tr("Restart required"));
+            m_subtitleLabel->setText(tr("Updates are installed. Restart now to finish."));
+            m_actionButton->setText(tr("Restart now"));
+            m_updateCard->setTitle(tr("Restart required"));
+            m_updateCard->setSizeText(m_status->newVersion());
+            m_updateCard->setBody(tr("The update has been installed. Restart the computer to finish."));
+            m_updateCard->setIconColor(Color::rgb(0x34C759));
             m_updateCard->setVisible(true);
             break;
 
@@ -385,11 +397,35 @@ private:
         }
     }
 
+    // Restart through the session, which quits every application first and
+    // carries on if one refuses. The update service only reports the state.
+    void restartNow()
+    {
+        base::dbus::Connection* bus = base::dbus::Connection::session();
+        if (!bus)
+            return;
+
+        base::dbus::Proxy session(bus, "org.lingmo.Session", "/org/lingmo/Session",
+                                  "org.lingmo.Session");
+        session.setTimeout(std::chrono::seconds(5));
+        m_restartCall = session.callAsync("reboot", [this](const base::dbus::Reply& reply) {
+            if (!reply.isError())
+                return;
+            m_subtitleLabel->setText(tr("Could not restart the session."));
+            m_subtitleLabel->setVisible(true);
+        });
+    }
+
     void onActionClicked()
     {
         if (!m_status->isAvailable() || m_status->isRequestPending()) return;
         const update::State state = m_status->state();
-        if (state == update::State::SystemUpgrade || state == update::State::SoftwareUpdate) {
+        if (state == update::State::RestartRequired) {
+            restartNow();
+        } else if (state == update::State::SystemUpgrade || state == update::State::SoftwareUpdate) {
+            // Close once the service reports that the upgrade has started, so
+            // a refused request stays visible with its error.
+            m_closeAfterUpgradeStart = true;
             m_status->startUpgrade();
         } else {
             m_status->checkForUpdate();
@@ -397,6 +433,8 @@ private:
     }
 
     std::shared_ptr<update::UpdateStatus> m_status;
+    base::dbus::PendingCall m_restartCall;
+    bool m_closeAfterUpgradeStart = false;
     std::vector<base::Subscription> m_subscriptions;
 
     Card*           m_headerCard;
@@ -406,8 +444,6 @@ private:
     SecondaryLabel* m_subtitleLabel;
     Button*         m_actionButton;
     UpdateInfoCard* m_updateCard;
-    Section*        m_optionsSection;
-    RowComboBox*    m_channelCombo;
 };
 
 } // namespace
