@@ -4,10 +4,12 @@
 #include <chrono>
 #include <ctime>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "base/dbus.h"
 #include "base/i18n.h"
+#include "base/process.h"
 #include "base/signal.h"
 #include "lingmo/update/update_status.h"
 #include "ui/button.h"
@@ -16,6 +18,7 @@
 #include "ui/layout.h"
 #include "ui/cell_layout.h"
 #include "ui/progress_bar.h"
+#include "ui/text_markup.h"
 #include "ui/theme.h"
 #include "ui/window.h"
 #include "widgets/card.h"
@@ -119,10 +122,43 @@ public:
 
     void setTitle(const std::string& title) { m_titleLabel->setText(title); }
     void setSizeText(const std::string& text) { m_sizeLabel->setText(text); }
-    void setBody(const std::string& text) { m_bodyLabel->setText(text); }
+    void setBody(const std::string& text, bool markup = false)
+    {
+        if (text.empty()) {
+            m_bodyLabel->setText({});
+            return;
+        }
+        if (!markup) {
+            m_bodyLabel->setText(text);
+            return;
+        }
+        std::vector<Label::Span> spans = styledTextSpans(text, Theme::current().highlight);
+        if (spans.empty()) {
+            m_bodyLabel->setText({});
+            return;
+        }
+        if (spans.size() == 1 && !spans.front().weight && !spans.front().color
+            && !spans.front().italic && !spans.front().underline) {
+            m_bodyLabel->setText(spans.front().text);
+        } else {
+            m_bodyLabel->setSpans(std::move(spans));
+        }
+    }
     void setIconColor(Color tint) { m_icon->set("update.svg", tint); }
 
 protected:
+    void pointerRelease(const PointerEvent& event) override
+    {
+        if (event.button != MouseButton::Left || !m_bodyLabel->isVisible())
+            return;
+        // A link in the release notes opens, as in a notification body.
+        const RectF body = m_bodyLabel->geometry();
+        const std::string link = m_bodyLabel->linkAt(
+                {event.position.x - body.x, event.position.y - body.y});
+        if (!link.empty())
+            base::Process::startDetached("xdg-open", {link});
+    }
+
     void paint(Painter& painter) override
     {
         Card::paint(painter);
@@ -301,7 +337,7 @@ private:
                 : std::string{};
             m_updateCard->setTitle(title);
             m_updateCard->setSizeText(sizeStr);
-            m_updateCard->setBody(m_status->changelogText());
+            m_updateCard->setBody(m_status->changelogText(), true);
             m_updateCard->setIconColor(Color::rgb(0x0067FF));
             m_updateCard->setVisible(true);
             break;
@@ -313,7 +349,7 @@ private:
             m_actionButton->setEnabled(false);
             m_updateCard->setTitle(tr("Software update"));
             m_updateCard->setSizeText(m_status->newVersion());
-            m_updateCard->setBody(m_status->changelogText());
+            m_updateCard->setBody(m_status->changelogText(), true);
             m_updateCard->setVisible(true);
             break;
 
