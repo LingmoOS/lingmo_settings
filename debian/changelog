@@ -1,4 +1,4 @@
-lingmo-settings (5.0.8+lingmo5u7) unstable; urgency=medium
+lingmo-settings (5.0.9+lingmo5u1) unstable; urgency=medium
 
   * Add advanced update settings for automatic check scheduling.
   * Close Settings when an update starts and show progress in notifications.
