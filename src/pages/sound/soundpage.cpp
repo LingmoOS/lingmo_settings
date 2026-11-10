@@ -5,10 +5,12 @@
 #include <algorithm>
 #include <cmath>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
 #include "base/i18n.h"
+#include "base/dbus.h"
 #include "lingmo/audio/audio_model.h"
 #include "lingmo/audio/backend.h"
 #include "lingmo/audio/volume_monitor.h"
@@ -151,6 +153,30 @@ public:
         , m_inputs(AudioObject::Source, m_backend)
         , m_monitor(m_backend)
     {
+        auto* eventCard = content()->addChild<Card>(Card::Style::List);
+        m_eventSounds = eventCard->addChild<SwitchRow>(tr("System event sounds"));
+        m_eventSounds->setName("event-sounds");
+        m_eventSounds->setEnabled(false);
+        m_eventSounds->onToggled = [this](bool enabled) {
+            m_soundChange = m_sounds.callAsync("setEnabled", [this](const base::dbus::Reply&) {
+                refreshSounds();
+            }, enabled);
+        };
+        m_previewSound = eventCard->addChild<Button>(tr("Test sound"));
+        m_previewSound->setEnabled(false);
+        m_previewSound->onClicked = [this] { m_sounds.send("playEvent", std::string("message-new-instant")); };
+        m_soundProperties = m_sounds.onPropertiesChanged(
+                [this](const base::dbus::VariantMap&, const std::vector<std::string>&) { refreshSounds(); });
+        if (auto* bus = base::dbus::Connection::session()) {
+            m_soundOwner = bus->watchName("org.lingmo.Services", [this](const std::string& owner) {
+                m_soundRead = {};
+                m_eventSounds->setEnabled(false);
+                m_previewSound->setEnabled(false);
+                if (!owner.empty())
+                    refreshSounds();
+            });
+        }
+
         m_connecting = content()->addChild<Card>();
         Label* connecting = m_connecting->addChild<Label>(tr("Connecting to the audio service…"));
         connecting->setWrap(true);
@@ -233,6 +259,17 @@ public:
     }
 
 private:
+    void refreshSounds()
+    {
+        m_soundRead = m_sounds.getPropertyAsync("enabled", [this](const base::dbus::Reply& reply) {
+            const auto value = reply.value<base::dbus::Variant>();
+            const auto enabled = value ? value->get<bool>() : std::optional<bool>();
+            m_eventSounds->setEnabled(enabled.has_value());
+            m_eventSounds->setChecked(enabled.value_or(false));
+            m_previewSound->setEnabled(enabled.value_or(false));
+        });
+    }
+
     bool showInputs() const { return m_tabs->currentIndex() == 1; }
     AudioModel& model() { return showInputs() ? m_inputs : m_outputs; }
 
@@ -305,6 +342,14 @@ private:
         m_inputLevel->setMeterLevel(volume > 0 ? std::max(0.0, 1 + std::log10(volume) * 20 / 50) : 0);
     }
 
+    base::dbus::Proxy m_sounds{base::dbus::Connection::session(), "org.lingmo.Services",
+                               "/org/lingmo/Services/Sound", "org.lingmo.Services.Sound"};
+    SwitchRow* m_eventSounds = nullptr;
+    Button* m_previewSound = nullptr;
+    base::dbus::Match m_soundProperties;
+    base::dbus::NameWatch m_soundOwner;
+    base::dbus::PendingCall m_soundRead;
+    base::dbus::PendingCall m_soundChange;
     std::shared_ptr<Backend> m_backend;
     AudioModel m_outputs;
     AudioModel m_inputs;

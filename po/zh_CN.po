@@ -2926,3 +2926,11 @@ msgstr "显示电池百分比"
 
 msgid "Background details"
 msgstr "背景细节"
+
+#: src/pages/sound/soundpage.cpp
+msgid "System event sounds"
+msgstr "系统事件音效"
+
+#: src/pages/sound/soundpage.cpp
+msgid "Test sound"
+msgstr "试听音效"
