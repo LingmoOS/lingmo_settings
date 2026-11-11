@@ -2952,3 +2952,19 @@ msgstr "已连接 Wi-Fi — 互联网访问受限"
 
 msgid "Connected to Wi-Fi — Internet access has not been verified"
 msgstr "已连接 Wi-Fi — 尚未确认互联网连通性"
+
+msgid "Desktop mode"
+msgstr "桌面模式"
+
+msgid "Efficient"
+msgstr "高效模式"
+
+msgid "Efficient mode uses a bottom taskbar with the system tray, time and notifications. The top bar and global menus are disabled."
+msgstr "高效模式使用底部任务栏，在右侧显示托盘、时间和通知。顶栏与全局菜单将停用。"
+
+msgid "Could not change desktop mode."
+msgstr "无法切换桌面模式。"
+
+msgctxt "desktop mode"
+msgid "Normal"
+msgstr "普通模式"

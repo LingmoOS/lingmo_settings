@@ -9,6 +9,7 @@
 
 #include "base/paths.h"
 #include "base/settings.h"
+#include "base/i18n.h"
 
 using namespace Lingmo::base;
 
@@ -18,6 +19,17 @@ DockSettings::DockSettings()
     : m_dock(dbus::Connection::session(), "org.lingmo.Dock", "/Dock", "org.lingmo.Dock")
 {
     const Settings shell(paths::lingmoConfig("shell"));
+    m_efficientMode = shell.intValue("Desktop/Mode", 0) == 1;
+    m_dock.setTimeout(std::chrono::seconds(3));
+    m_modeProperties = m_dock.onPropertiesChanged([this](const dbus::VariantMap &, const std::vector<std::string> &) { readMode(); });
+    if (auto *bus = dbus::Connection::session()) {
+        m_modeOwner = bus->watchName("org.lingmo.Dock", [this](const std::string &owner) {
+            ++m_modeGeneration; m_modeRead = {}; m_modeWrite = {};
+            m_modePending = false; m_modeAvailable = false; m_modeError.clear();
+            modeChanged();
+            if (!owner.empty()) readMode();
+        });
+    }
     m_iconSize = int(shell.intValue("Dock/IconSize"));
     m_direction = int(shell.intValue("Dock/Direction"));
     m_visibility = int(shell.intValue("Dock/Visibility"));
@@ -26,6 +38,32 @@ DockSettings::DockSettings()
     m_magnification = shell.boolValue("Dock/Magnification", true);
     m_magnificationFactor = std::clamp(shell.doubleValue("Dock/MagnificationFactor", 1.5), 1.0, 2.0);
     m_bounceOnLaunch = shell.boolValue("Dock/BounceOnLaunch", true);
+}
+
+void DockSettings::readMode()
+{
+    const uint64_t generation = m_modeGeneration;
+    m_modeRead = m_dock.getPropertyAsync("efficientMode", [this, generation](const dbus::Reply &reply) {
+        if (generation != m_modeGeneration) return;
+        const auto property = reply.value<dbus::Variant>();
+        const auto value = property ? property->get<bool>() : std::optional<bool>();
+        m_modeAvailable = value.has_value();
+        if (value) m_efficientMode = *value;
+        modeChanged();
+    });
+}
+
+void DockSettings::setEfficientMode(bool enabled)
+{
+    if (!m_modeAvailable || m_modePending || enabled == m_efficientMode) return;
+    m_modePending = true; m_modeError.clear(); modeChanged();
+    const uint64_t generation = m_modeGeneration;
+    m_modeWrite = m_dock.callAsync("setEfficientMode", [this, generation](const dbus::Reply &reply) {
+        if (generation != m_modeGeneration) return;
+        m_modePending = false;
+        if (reply.isError()) m_modeError = Lingmo::I18n::tr("Could not change desktop mode.");
+        modeChanged(); readMode();
+    }, enabled);
 }
 
 // Called on every slider move; none of these waits for the dock.

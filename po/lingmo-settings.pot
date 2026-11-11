@@ -2666,3 +2666,19 @@ msgstr ""
 
 msgid "Connected to Wi-Fi — Internet access has not been verified"
 msgstr ""
+
+msgid "Desktop mode"
+msgstr ""
+
+msgid "Efficient"
+msgstr ""
+
+msgid "Efficient mode uses a bottom taskbar with the system tray, time and notifications. The top bar and global menus are disabled."
+msgstr ""
+
+msgid "Could not change desktop mode."
+msgstr ""
+
+msgctxt "desktop mode"
+msgid "Normal"
+msgstr ""

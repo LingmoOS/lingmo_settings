@@ -39,7 +39,19 @@ public:
     explicit DockPage(SettingsWindow& window)
         : Page(window, tr("Desktop & Dock"))
     {
+        auto *modeSection = content()->addChild<Section>(tr("Desktop mode"));
+        auto *modeCard = modeSection->addChild<Card>(Card::Style::List);
+        auto *modeRow = modeCard->addChild<ListRow>(tr("Mode"));
+        modeRow->setInteractive(false);
+        m_mode = modeRow->addContent<RowComboBox>(std::vector<std::string>{Lingmo::i18n::trc("desktop mode", "Normal"), tr("Efficient")});
+        m_mode->setName("dock:desktop-mode");
+        m_mode->onActivated = [this](int index) { m_settings.setEfficientMode(index == 1); updateMode(); };
+        modeSection->addChild<Footnote>(tr("Efficient mode uses a bottom taskbar with the system tray, time and notifications. The top bar and global menus are disabled."));
+        m_modeError = modeSection->addChild<Footnote>(std::string());
+        m_modeSubscription = m_settings.modeChanged.connect([this] { updateMode(); });
         Section* position = content()->addChild<Section>(tr("Dock"));
+        m_normalDock = position;
+        updateMode();
         Card* positions = position->addChild<Card>(Card::Style::List);
         auto* choices=positions->addChild<ChoiceRow>(tr("Position on screen"));
         auto* tiles=choices->options();
@@ -107,6 +119,7 @@ public:
 
         Section* launch = content()->addChild<Section>(tr("Dock behavior"));
         Card* behaviour = launch->addChild<Card>(Card::Style::List);
+        m_normalBehaviour = behaviour;
         SwitchRow* bounce = behaviour->addChild<SwitchRow>(tr("Bounce on launch"));
         bounce->setName("dock:bounce");
         bounce->setChecked(m_settings.bounceOnLaunch());
@@ -121,6 +134,7 @@ public:
         hotCorners->onClicked = [&window] { window.pushPage("hotcorners"); };
 
         Card* minimized = launch->addChild<Card>(Card::Style::List);
+        m_normalMinimized = minimized;
         SwitchRow* area = minimized->addChild<SwitchRow>(tr("Minimized windows area"));
         area->setChecked(m_settings.minimizedArea());
         area->onToggled = [this](bool checked) { m_settings.setMinimizedArea(checked); };
@@ -132,10 +146,28 @@ public:
         auto* widgets=desktopCard->addChild<NavigationItem>(tr("Widget settings"));widgets->onClicked=[&window]{window.switchToPage("desktopwidgets");};
         auto* wallpaper=desktopCard->addChild<NavigationItem>(tr("Wallpaper"));wallpaper->onClicked=[&window]{window.switchToPage("background");};
         desktop->addChild<Footnote>(tr("Arrange desktop widgets, choose their appearance, and manage the separate Notification Center layout."));
+        updateMode();
 
     }
 
 private:
+    void updateMode()
+    {
+        m_mode->setCurrentIndex(m_settings.efficientMode() ? 1 : 0);
+        m_mode->setEnabled(m_settings.modeAvailable() && !m_settings.modePending());
+        m_modeError->setText(m_settings.modeError());
+        m_modeError->setVisible(!m_settings.modeError().empty());
+        if (m_normalDock) m_normalDock->setEnabled(!m_settings.efficientMode());
+        if (m_normalBehaviour) m_normalBehaviour->setEnabled(!m_settings.efficientMode());
+        if (m_normalMinimized) m_normalMinimized->setEnabled(!m_settings.efficientMode());
+    }
+    RowComboBox *m_mode = nullptr;
+    Footnote *m_modeError = nullptr;
+    Section *m_normalDock = nullptr;
+    Card *m_normalBehaviour = nullptr;
+    Card *m_normalMinimized = nullptr;
+    Lingmo::base::Subscription m_modeSubscription;
+
     void updateDirection()
     {
         for (size_t i = 0; i < m_directions.size(); ++i)

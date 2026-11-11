@@ -5,6 +5,7 @@
 #pragma once
 
 #include "base/dbus.h"
+#include "base/signal.h"
 
 namespace settings {
 
@@ -15,6 +16,12 @@ class DockSettings
 public:
     DockSettings();
 
+    bool efficientMode() const { return m_efficientMode; }
+    bool modeAvailable() const { return m_modeAvailable; }
+    bool modePending() const { return m_modePending; }
+    const std::string &modeError() const { return m_modeError; }
+    void setEfficientMode(bool enabled);
+    Lingmo::base::Signal<> modeChanged;
     int iconSize() const { return m_iconSize; }
     void setIconSize(int size);
 
@@ -44,6 +51,16 @@ public:
     void setBounceOnLaunch(bool enabled);
 
 private:
+    void readMode();
+    bool m_efficientMode = false;
+    bool m_modeAvailable = false;
+    bool m_modePending = false;
+    std::string m_modeError;
+    uint64_t m_modeGeneration = 0;
+    Lingmo::base::dbus::NameWatch m_modeOwner;
+    Lingmo::base::dbus::Match m_modeProperties;
+    Lingmo::base::dbus::PendingCall m_modeRead;
+    Lingmo::base::dbus::PendingCall m_modeWrite;
     Lingmo::base::dbus::Proxy m_dock;
     int m_iconSize = 0;
     int m_direction = 0;
