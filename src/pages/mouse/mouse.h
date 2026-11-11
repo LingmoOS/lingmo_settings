@@ -18,6 +18,10 @@ public:
     // Whether the service runs and a mouse is connected.
     bool isAvailable() const;
 
+    bool locatorAvailable() const;
+    bool shakeToLocate() const;
+    void setShakeToLocate(bool enabled);
+
     bool leftHanded() const;
     void setLeftHanded(bool enabled);
 

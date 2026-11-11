@@ -16,6 +16,10 @@ bool Mouse::isAvailable() const
     return m_service.isAvailable() && m_service.boolValue("available", false);
 }
 
+bool Mouse::locatorAvailable() const { return m_service.isAvailable(); }
+bool Mouse::shakeToLocate() const { return m_service.boolValue("shakeToLocate", true); }
+void Mouse::setShakeToLocate(bool enabled) { m_service.call("setShakeToLocate", enabled); }
+
 bool Mouse::leftHanded() const
 {
     return m_service.boolValue("leftHanded", false);

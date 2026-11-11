@@ -59,6 +59,10 @@ public:
         m_speed->slider()->setSnapMode(Slider::SnapMode::SnapAlways);
         m_speed->onMoved = [this](double value) { m_mouse.setPointerAcceleration(speedForStep(int(std::round(value)))); };
 
+        auto *locatorCard = content()->addChild<Card>(Card::Style::List);
+        m_locator = locatorCard->addChild<SwitchRow>(tr("Shake pointer to locate"));
+        m_locator->setName("mouse:shakeToLocate");
+        m_locator->onToggled = [this](bool checked) { m_mouse.setShakeToLocate(checked); };
         m_changed = m_mouse.changed().connect([this] { update(); });
         update();
     }
@@ -66,6 +70,8 @@ public:
 private:
     void update()
     {
+        m_locator->setEnabled(m_mouse.locatorAvailable());
+        m_locator->setChecked(m_mouse.shakeToLocate());
         m_card->setEnabled(m_mouse.isAvailable());
         m_leftHanded->setChecked(m_mouse.leftHanded());
         m_naturalScroll->setChecked(m_mouse.naturalScroll());
@@ -77,6 +83,7 @@ private:
     base::Subscription m_changed;
     Card* m_card;
     SwitchRow* m_leftHanded;
+    SwitchRow* m_locator;
     SwitchRow* m_naturalScroll;
     SwitchRow* m_acceleration;
     SliderRow* m_speed;

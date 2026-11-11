@@ -2968,3 +2968,6 @@ msgstr "无法切换桌面模式。"
 msgctxt "desktop mode"
 msgid "Normal"
 msgstr "普通模式"
+
+msgid "Shake pointer to locate"
+msgstr "摇动鼠标定位光标"

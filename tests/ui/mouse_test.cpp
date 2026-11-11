@@ -30,6 +30,7 @@ namespace {
 struct FakeMouse
 {
     std::mutex mutex;
+    bool shakeToLocate = true;
     bool leftHanded = false;
     bool naturalScroll = true;
     bool acceleration = true;
@@ -63,6 +64,7 @@ static std::shared_ptr<void> serve(dbus::Connection& bus, FakeMouse& fake)
     auto object = std::make_shared<dbus::Object>(&bus, "/org/lingmo/Mouse1", "org.lingmo.Mouse1");
     object->addProperty("available", [] { return true; });
     object->addSignal("availableChanged", "");
+    addSetting(*object, fake, "shakeToLocate", "setShakeToLocate", &FakeMouse::shakeToLocate);
     addSetting(*object, fake, "leftHanded", "setLeftHanded", &FakeMouse::leftHanded);
     addSetting(*object, fake, "naturalScroll", "setNaturalScroll", &FakeMouse::naturalScroll);
     addSetting(*object, fake, "acceleration", "setAcceleration", &FakeMouse::acceleration);
@@ -173,4 +175,22 @@ TEST_F(MouseTest, PageLaysOutAsTheQtVersionAndSetsTheService)
     // Without the service the card is there but disabled.
     service->stop();
     ASSERT_TRUE(waitFor([&] { return !settings::testing::findView(window.contentView(), "mouse:card")->isEnabled(); }));
+}
+
+TEST_F(MouseTest, ShakeLocatorSwitchFollowsServiceAndPersistsAcrossRestart)
+{
+    ASSERT_TRUE(service->start());
+    SettingsWindow settingsWindow;
+    auto &window = settingsWindow.window();
+    settingsWindow.reveal(); settingsWindow.switchToPage("mouse"); window.grab();
+    auto *row = settings::testing::findView<SwitchRow>(window.contentView(), "mouse:shakeToLocate");
+    ASSERT_NE(nullptr, row);
+    ASSERT_TRUE(waitFor([&] { return row->isEnabled(); }));
+    EXPECT_TRUE(row->isChecked());
+    row->onToggled(false);
+    ASSERT_TRUE(waitFor([&] { return !row->isChecked(); }));
+    service->stop();
+    ASSERT_TRUE(waitFor([&] { return !row->isEnabled(); }));
+    ASSERT_TRUE(service->start());
+    ASSERT_TRUE(waitFor([&] { return row->isEnabled() && !row->isChecked(); }));
 }

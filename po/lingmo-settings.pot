@@ -2682,3 +2682,6 @@ msgstr ""
 msgctxt "desktop mode"
 msgid "Normal"
 msgstr ""
+
+msgid "Shake pointer to locate"
+msgstr ""

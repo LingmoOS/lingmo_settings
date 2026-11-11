@@ -1,3 +1,11 @@
+lingmo-settings (5.0.13+lingmo5u1) unstable; urgency=medium
+
+  * Add a shake-pointer-to-locate switch to Mouse settings.
+  * Follow the compositor preference across service changes and restarts.
+  * Add Chinese translation and UI regression coverage.
+
+ -- Lingmo OS Team <team@lingmo.org>  Thu, 12 Nov 2026 01:58:05 +0800
+
 lingmo-settings (5.0.12+lingmo5u1) unstable; urgency=medium
 
   * Add Normal/Efficient desktop mode selection under Desktop & Dock.
