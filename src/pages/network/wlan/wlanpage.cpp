@@ -7,6 +7,8 @@
 #include <optional>
 
 #include "base/i18n.h"
+#include "base/dbus.h"
+#include "ui/button.h"
 #include "base/timer.h"
 #include "lingmo/networkmanager/connections.h"
 #include "lingmo/networkmanager/handler.h"
@@ -86,6 +88,32 @@ public:
         m_hotspotChevron = m_hotspotRow->addContent<TrailingIcon>("chevron-right", 16);
         m_hotspotRow->onClicked = [this] { settingsWindow().switchToPage("hotspot"); };
 
+        m_connectivityCard = m_view->addChild<Card>();
+        m_connectivityCard->setVisible(false);
+        m_connectivityLabel = m_connectivityCard->addChild<Label>();
+        m_connectivityLabel->setWrap(true);
+        m_connectivityLabel->setLayoutHints({.fillWidth = true});
+        m_login = m_connectivityCard->addChild<Button>(tr("Open login page"));
+        m_login->setName("wlan:login");
+        m_login->onClicked = [this] {
+            m_loginCall = m_connectivity.callAsync("openLogin", [this](const Lingmo::base::dbus::Reply& reply) {
+                if (!reply.value<bool>().value_or(false))
+                    m_connectivityLabel->setText(tr("Could not open the network login page."));
+            });
+        };
+        m_connectivityProperties = m_connectivity.onPropertiesChanged(
+                [this](const Lingmo::base::dbus::VariantMap&, const std::vector<std::string>&) { refreshConnectivity(); });
+        if (!m_list.isMock()) {
+            if (auto* bus = Lingmo::base::dbus::Connection::session())
+                m_connectivityOwner = bus->watchName("org.lingmo.Services", [this](const std::string& owner) {
+                    ++m_connectivityGeneration;
+                    m_connectivityRead = {};
+                    m_connectivityCard->setVisible(false);
+                    if (!owner.empty())
+                        refreshConnectivity();
+                });
+        }
+
         m_known = addSection(tr("Known networks"), false);
         m_known.section->setName("wlan:known");
         m_other = addSection(tr("Other networks"), true);
@@ -123,6 +151,26 @@ protected:
     }
 
 private:
+    void refreshConnectivity()
+    {
+        const uint64_t generation = ++m_connectivityGeneration;
+        m_connectivityRead = m_connectivity.getAllAsync([this, generation](const Lingmo::base::dbus::Reply& reply) {
+            if (generation != m_connectivityGeneration)
+                return;
+            auto properties = reply.value<Lingmo::base::dbus::VariantMap>();
+            const bool wireless = properties && (*properties)["wireless"].value<bool>();
+            m_connectivityCard->setVisible(wireless && !m_list.isMock());
+            if (!wireless)
+                return;
+            const uint32_t state = (*properties)["state"].value<uint32_t>();
+            m_login->setVisible(state == 2);
+            m_connectivityLabel->setText(state == 2 ? tr("Connected to Wi-Fi — login required")
+                    : state == 4 ? tr("Internet access available")
+                    : state == 1 || state == 3 ? tr("Connected to Wi-Fi — Internet access is limited")
+                    : tr("Connected to Wi-Fi — Internet access has not been verified"));
+        });
+    }
+
     WifiSection addSection(const std::string& title, bool footer)
     {
         WifiSection section;
@@ -274,6 +322,16 @@ private:
         requestLayout();
     }
 
+    Lingmo::base::dbus::Proxy m_connectivity{Lingmo::base::dbus::Connection::session(),
+            "org.lingmo.Services", "/org/lingmo/Services/Connectivity", "org.lingmo.Services.Connectivity"};
+    Card* m_connectivityCard = nullptr;
+    Label* m_connectivityLabel = nullptr;
+    Button* m_login = nullptr;
+    uint64_t m_connectivityGeneration = 0;
+    Lingmo::base::dbus::Match m_connectivityProperties;
+    Lingmo::base::dbus::NameWatch m_connectivityOwner;
+    Lingmo::base::dbus::PendingCall m_connectivityRead;
+    Lingmo::base::dbus::PendingCall m_loginCall;
     NetworkList m_list;
     nm::EnabledConnections m_enabled;
     nm::Handler m_handler;

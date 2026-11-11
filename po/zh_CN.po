@@ -2934,3 +2934,21 @@ msgstr "系统事件音效"
 #: src/pages/sound/soundpage.cpp
 msgid "Test sound"
 msgstr "试听音效"
+
+msgid "Open login page"
+msgstr "打开登录页面"
+
+msgid "Could not open the network login page."
+msgstr "无法打开网络登录页面。"
+
+msgid "Connected to Wi-Fi — login required"
+msgstr "已连接 Wi-Fi — 需要登录认证"
+
+msgid "Internet access available"
+msgstr "可以访问互联网"
+
+msgid "Connected to Wi-Fi — Internet access is limited"
+msgstr "已连接 Wi-Fi — 互联网访问受限"
+
+msgid "Connected to Wi-Fi — Internet access has not been verified"
+msgstr "已连接 Wi-Fi — 尚未确认互联网连通性"

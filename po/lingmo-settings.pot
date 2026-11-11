@@ -2648,3 +2648,21 @@ msgstr ""
 #: src/pages/sound/soundpage.cpp
 msgid "Test sound"
 msgstr ""
+
+msgid "Open login page"
+msgstr ""
+
+msgid "Could not open the network login page."
+msgstr ""
+
+msgid "Connected to Wi-Fi — login required"
+msgstr ""
+
+msgid "Internet access available"
+msgstr ""
+
+msgid "Connected to Wi-Fi — Internet access is limited"
+msgstr ""
+
+msgid "Connected to Wi-Fi — Internet access has not been verified"
+msgstr ""
