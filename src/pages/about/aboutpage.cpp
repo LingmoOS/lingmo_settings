@@ -513,8 +513,20 @@ private:
         versions->setRowSpacing(metrics::m);
         versions->addChild<InfoCell>(tr("Debian Version"), about::debianVersion());
         versions->addChild<InfoCell>(tr("Linux Kernel Version"), "Linux " + about::kernelVersion());
-        versions->addChild<InfoCell>(tr("Aurora Version"), about::auroraVersion());
         versions->addChild<InfoCell>(tr("System Type"), about::architecture());
+        RowLayout* auroraVersion = groups->addChild<RowLayout>();
+        auroraVersion->setName("about:aurora-version");
+        auroraVersion->setSpacing(metrics::s);
+        auroraVersion->setLayoutHints({.fillWidth = true});
+        ImageView* auroraLogo = auroraVersion->addChild<ImageView>(dataPath("images/aurora.png"));
+        auroraLogo->setFillMode(ImageView::FillMode::PreserveAspectFit);
+        auroraLogo->setLayoutHints({.preferredWidth = 20, .preferredHeight = 20,
+                                    .verticalAlignment = Alignment::Center});
+        Label* auroraVersionLabel = auroraVersion->addChild<Label>(std::string(tr("Aurora Version"))
+                                                                    + "  " + about::auroraVersion());
+        auroraVersionLabel->setName("about:aurora-version-label");
+        auroraVersionLabel->setFontSize(metrics::points(10));
+        auroraVersionLabel->setWeight(500);
 
         groups->addChild<Divider>()->setLayoutHints({.fillWidth = true, .preferredHeight = 1});
 

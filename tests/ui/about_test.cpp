@@ -17,6 +17,8 @@ TEST(AboutPage, ShowsTheSystemRows)
     EXPECT_NE(page.dump().find("\"about:copy-info\""), std::string::npos);
     EXPECT_NE(page.dump().find("\"about:more-info\""), std::string::npos);
     EXPECT_NE(page.dump().find("\"about:edit-pc-name\""), std::string::npos);
+    EXPECT_NE(page.dump().find("\"about:aurora-version\""), std::string::npos);
+    EXPECT_NE(page.dump().find("\"about:aurora-version-label\""), std::string::npos);
 }
 
 TEST(AboutPage, FormatsSizesAsTheQtVersionDid)
