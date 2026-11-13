@@ -40,9 +40,8 @@ std::string internalStorage();
 std::string hostName();
 // The Debian release this system is built on, from /etc/debian_version.
 std::string debianVersion();
-// The lingmo-sdk the desktop is built against, from its pkg-config file;
-// empty when the file is not installed.
-std::string uiVersion();
+// The installed Lingmo Aurora compositor version.
+std::string auroraVersion();
 
 // With binary units, B through YB, whole numbers.
 std::string formatByteSize(double size);

@@ -372,7 +372,7 @@ public:
                 {tr("Debian Version"), about::debianVersion()},
                 {tr("Linux Kernel Version"), "Linux " + about::kernelVersion()},
                 {tr("Kernel Build"), about::kernelBuild()},
-                {tr("Lingmo UI Version"), about::uiVersion()},
+                {tr("Aurora Version"), about::auroraVersion()},
                 {tr("System Type"), about::architecture()},
                 {tr("Session"), about::sessionType()},
                 {tr("Uptime"), about::uptime()},
@@ -513,7 +513,7 @@ private:
         versions->setRowSpacing(metrics::m);
         versions->addChild<InfoCell>(tr("Debian Version"), about::debianVersion());
         versions->addChild<InfoCell>(tr("Linux Kernel Version"), "Linux " + about::kernelVersion());
-        versions->addChild<InfoCell>(tr("Lingmo UI Version"), about::uiVersion());
+        versions->addChild<InfoCell>(tr("Aurora Version"), about::auroraVersion());
         versions->addChild<InfoCell>(tr("System Type"), about::architecture());
 
         groups->addChild<Divider>()->setLayoutHints({.fillWidth = true, .preferredHeight = 1});
@@ -578,7 +578,7 @@ private:
         line(tr("Computer Model"), about::computerModel());
         line(tr("Debian Version"), about::debianVersion());
         line(tr("Linux Kernel Version"), about::kernelVersion());
-        line(tr("Lingmo UI Version"), about::uiVersion());
+        line(tr("Aurora Version"), about::auroraVersion());
         line(tr("System Type"), about::architecture());
         line(tr("CPU"), about::processor());
         line(tr("RAM"), about::memorySize());

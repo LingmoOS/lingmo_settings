@@ -288,28 +288,14 @@ std::string debianVersion()
     return end == std::string::npos ? std::string() : line.substr(0, end + 1);
 }
 
-std::string uiVersion()
+std::string auroraVersion()
 {
-    // lingmo-sdk's pkg-config file carries the version the desktop is built
-    // against. The multiarch directory differs per architecture, so every
-    // place it is installed to is tried.
-    for (const char* path : {"/usr/lib/x86_64-linux-gnu/pkgconfig/lingmo-sdk.pc",
-                             "/usr/lib/aarch64-linux-gnu/pkgconfig/lingmo-sdk.pc",
-                             "/usr/lib/riscv64-linux-gnu/pkgconfig/lingmo-sdk.pc",
-                             "/usr/lib/pkgconfig/lingmo-sdk.pc",
-                             "/usr/share/pkgconfig/lingmo-sdk.pc"}) {
-        std::ifstream file(path);
-        if (!file)
-            continue;
-        std::string line;
-        while (std::getline(file, line)) {
-            if (!line.starts_with("Version:"))
-                continue;
-            const size_t begin = line.find_first_not_of(" \t", 8);
-            return begin == std::string::npos ? std::string() : line.substr(begin);
-        }
-    }
-    return {};
+    std::ifstream file("/usr/share/lingmo-aurora/version");
+    std::string version;
+    if (!std::getline(file, version))
+        return "1.0.0";
+    const size_t end = version.find_last_not_of(" \t\r\n");
+    return end == std::string::npos ? "1.0.0" : version.substr(0, end + 1);
 }
 
 } // namespace settings::about
