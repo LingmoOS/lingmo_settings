@@ -143,6 +143,49 @@ private:
     Label* m_value;
 };
 
+class AuroraVersionCell : public View
+{
+public:
+    AuroraVersionCell()
+    {
+        setName("about:aurora-version");
+        setLayoutHints({.fillWidth = true});
+        m_key = addChild<Label>(tr("Aurora Version"));
+        m_key->setColor(Theme::current().disabledText);
+        m_key->setFontSize(metrics::points(9));
+
+        m_logo = addChild<ImageView>(dataPath("images/aurora.png"));
+        m_logo->setFillMode(ImageView::FillMode::PreserveAspectFit);
+        m_value = addChild<Label>(about::auroraVersion());
+        m_value->setName("about:aurora-version-label");
+        m_value->setFontSize(metrics::points(10));
+        m_value->setWeight(500);
+    }
+
+protected:
+    void layout() override
+    {
+        const double width = geometry().width;
+        const double keyHeight = m_key->heightForWidth(width);
+        const double logoSize = metrics::points(18);
+        const double valueY = keyHeight + metrics::xs;
+        m_key->setGeometry({0, 0, width, keyHeight});
+        m_logo->setGeometry({0, valueY, logoSize, logoSize});
+        m_value->setGeometry({logoSize + metrics::s, valueY,
+                              std::max(0.0, width - logoSize - metrics::s), logoSize});
+    }
+
+    double heightForWidth(double width) const override
+    {
+        return m_key->heightForWidth(width) + metrics::xs + metrics::points(18);
+    }
+
+private:
+    Label* m_key;
+    ImageView* m_logo;
+    Label* m_value;
+};
+
 // A quiet rule between the software and hardware groups of the system card.
 class Divider : public View
 {
@@ -513,20 +556,9 @@ private:
         versions->setRowSpacing(metrics::m);
         versions->addChild<InfoCell>(tr("Debian Version"), about::debianVersion());
         versions->addChild<InfoCell>(tr("Linux Kernel Version"), "Linux " + about::kernelVersion());
-        versions->addChild<InfoCell>(tr("System Type"), about::architecture());
-        RowLayout* auroraVersion = groups->addChild<RowLayout>();
-        auroraVersion->setName("about:aurora-version");
-        auroraVersion->setSpacing(metrics::s);
-        auroraVersion->setLayoutHints({.fillWidth = true});
-        ImageView* auroraLogo = auroraVersion->addChild<ImageView>(dataPath("images/aurora.png"));
-        auroraLogo->setFillMode(ImageView::FillMode::PreserveAspectFit);
-        auroraLogo->setLayoutHints({.preferredWidth = 20, .preferredHeight = 20,
-                                    .verticalAlignment = Alignment::Center});
-        Label* auroraVersionLabel = auroraVersion->addChild<Label>(std::string(tr("Aurora Version"))
-                                                                    + "  " + about::auroraVersion());
-        auroraVersionLabel->setName("about:aurora-version-label");
-        auroraVersionLabel->setFontSize(metrics::points(10));
-        auroraVersionLabel->setWeight(500);
+
+        groups->addChild<AuroraVersionCell>();
+        groups->addChild<InfoCell>(tr("System Type"), about::architecture());
 
         groups->addChild<Divider>()->setLayoutHints({.fillWidth = true, .preferredHeight = 1});
 
