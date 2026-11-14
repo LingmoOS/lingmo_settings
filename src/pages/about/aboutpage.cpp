@@ -557,8 +557,12 @@ private:
         versions->addChild<InfoCell>(tr("Debian Version"), about::debianVersion());
         versions->addChild<InfoCell>(tr("Linux Kernel Version"), "Linux " + about::kernelVersion());
 
-        groups->addChild<AuroraVersionCell>();
-        groups->addChild<InfoCell>(tr("System Type"), about::architecture());
+        GridLayout* platform = groups->addChild<GridLayout>(2);
+        platform->setLayoutHints({.fillWidth = true});
+        platform->setColumnSpacing(metrics::xl);
+        platform->setRowSpacing(metrics::m);
+        platform->addChild<AuroraVersionCell>();
+        platform->addChild<InfoCell>(tr("System Type"), about::architecture());
 
         groups->addChild<Divider>()->setLayoutHints({.fillWidth = true, .preferredHeight = 1});
 

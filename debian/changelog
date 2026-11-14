@@ -1,8 +1,9 @@
-lingmo-settings (5.0.13+lingmo5u1) unstable; urgency=medium
+lingmo-settings (5.0.14+lingmo5u1) unstable; urgency=medium
 
   * Add a shake-pointer-to-locate switch to Mouse settings.
   * Follow the compositor preference across service changes and restarts.
   * Add Chinese translation and UI regression coverage.
+  * Place Aurora version details beside the system type in the System card.
 
  -- Lingmo OS Team <team@lingmo.org>  Thu, 12 Nov 2026 01:58:05 +0800
 
