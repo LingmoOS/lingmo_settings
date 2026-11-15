@@ -165,6 +165,11 @@ DeviceDetailsDialog::DeviceDetailsDialog(Window* parent, std::shared_ptr<bluez::
     m_forget = buttons->addChild<DialogButton>(tr("Forget this device"), true);
     m_forget->setDestructive(true);
     m_forget->onClicked = [this] {
+        // BlueZ removes the object immediately after RemoveDevice. Stop
+        // receiving its final Changed signal before the shared object is
+        // detached, otherwise the dialog can update destroyed controls.
+        m_changed = {};
+        m_forget->setEnabled(false);
         m_device->forget();
         m_dialog->close();
     };
