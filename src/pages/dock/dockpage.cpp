@@ -48,6 +48,9 @@ public:
         m_mode->onActivated = [this](int index) { m_settings.setEfficientMode(index == 1); updateMode(); };
         modeSection->addChild<Footnote>(tr("Efficient mode uses a bottom taskbar with the system tray, time and notifications. The top bar and global menus are disabled."));
         m_modeError = modeSection->addChild<Footnote>(std::string());
+        Card* efficientSettings = modeSection->addChild<Card>(Card::Style::List);
+        m_taskbarSettings = efficientSettings->addChild<NavigationItem>(tr("Taskbar settings"));
+        m_taskbarSettings->onClicked = [&window] { window.switchToPage("statusbar"); };
         m_modeSubscription = m_settings.modeChanged.connect([this] { updateMode(); });
         Section* position = content()->addChild<Section>(tr("Dock"));
         m_normalDock = position;
@@ -157,12 +160,15 @@ private:
         m_mode->setEnabled(m_settings.modeAvailable() && !m_settings.modePending());
         m_modeError->setText(m_settings.modeError());
         m_modeError->setVisible(!m_settings.modeError().empty());
+        if (m_taskbarSettings)
+            m_taskbarSettings->setVisible(m_settings.efficientMode());
         if (m_normalDock) m_normalDock->setEnabled(!m_settings.efficientMode());
         if (m_normalBehaviour) m_normalBehaviour->setEnabled(!m_settings.efficientMode());
         if (m_normalMinimized) m_normalMinimized->setEnabled(!m_settings.efficientMode());
     }
     RowComboBox *m_mode = nullptr;
     Footnote *m_modeError = nullptr;
+    NavigationItem *m_taskbarSettings = nullptr;
     Section *m_normalDock = nullptr;
     Card *m_normalBehaviour = nullptr;
     Card *m_normalMinimized = nullptr;
