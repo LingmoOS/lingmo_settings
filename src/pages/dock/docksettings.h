@@ -49,6 +49,10 @@ public:
     // An application that is starting hops a few times.
     bool bounceOnLaunch() const { return m_bounceOnLaunch; }
     void setBounceOnLaunch(bool enabled);
+    int taskbarAlignment() const { return m_taskbarAlignment; }
+    void setTaskbarAlignment(int value);
+    int taskbarSearch() const { return m_taskbarSearch; }
+    void setTaskbarSearch(int value);
 
 private:
     void readMode();
@@ -70,6 +74,8 @@ private:
     bool m_magnification = true;
     double m_magnificationFactor = 1.5;
     bool m_bounceOnLaunch = true;
+    int m_taskbarAlignment = 0;
+    int m_taskbarSearch = 0;
 };
 
 } // namespace settings

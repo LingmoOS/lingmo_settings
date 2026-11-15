@@ -52,6 +52,18 @@ public:
         m_taskbarSettings = efficientSettings->addChild<NavigationItem>(tr("Taskbar settings"));
         m_taskbarSettings->onClicked = [&window] { window.switchToPage("statusbar"); };
         m_modeSubscription = m_settings.modeChanged.connect([this] { updateMode(); });
+        Card* taskbar = modeSection->addChild<Card>(Card::Style::List);
+        auto* alignment = taskbar->addChild<ListRow>(tr("Taskbar alignment"));
+        alignment->setInteractive(false);
+        auto* alignmentBox = alignment->addContent<RowComboBox>(std::vector<std::string>{tr("Left"), tr("Center")});
+        alignmentBox->setCurrentIndex(m_settings.taskbarAlignment());
+        alignmentBox->onActivated = [this, alignmentBox](int index) { m_settings.setTaskbarAlignment(index); alignmentBox->setCurrentIndex(m_settings.taskbarAlignment()); };
+        auto* search = taskbar->addChild<ListRow>(tr("Search box"));
+        search->setInteractive(false);
+        auto* searchBox = search->addContent<RowComboBox>(std::vector<std::string>{tr("Hidden"), tr("Shown")});
+        searchBox->setCurrentIndex(m_settings.taskbarSearch());
+        searchBox->onActivated = [this, searchBox](int index) { m_settings.setTaskbarSearch(index); searchBox->setCurrentIndex(m_settings.taskbarSearch()); };
+        m_taskbarOptions = taskbar;
         Section* position = content()->addChild<Section>(tr("Dock"));
         m_normalDock = position;
         updateMode();
@@ -162,6 +174,8 @@ private:
         m_modeError->setVisible(!m_settings.modeError().empty());
         if (m_taskbarSettings)
             m_taskbarSettings->setVisible(m_settings.efficientMode());
+        if (m_taskbarOptions)
+            m_taskbarOptions->setVisible(m_settings.efficientMode());
         if (m_normalDock) m_normalDock->setEnabled(!m_settings.efficientMode());
         if (m_normalBehaviour) m_normalBehaviour->setEnabled(!m_settings.efficientMode());
         if (m_normalMinimized) m_normalMinimized->setEnabled(!m_settings.efficientMode());
@@ -169,6 +183,7 @@ private:
     RowComboBox *m_mode = nullptr;
     Footnote *m_modeError = nullptr;
     NavigationItem *m_taskbarSettings = nullptr;
+    Card *m_taskbarOptions = nullptr;
     Section *m_normalDock = nullptr;
     Card *m_normalBehaviour = nullptr;
     Card *m_normalMinimized = nullptr;

@@ -38,6 +38,8 @@ DockSettings::DockSettings()
     m_magnification = shell.boolValue("Dock/Magnification", true);
     m_magnificationFactor = std::clamp(shell.doubleValue("Dock/MagnificationFactor", 1.5), 1.0, 2.0);
     m_bounceOnLaunch = shell.boolValue("Dock/BounceOnLaunch", true);
+    m_taskbarAlignment = int(shell.intValue("Dock/TaskbarAlignment", 0));
+    m_taskbarSearch = int(shell.intValue("Dock/TaskbarSearch", 0));
 }
 
 void DockSettings::readMode()
@@ -131,6 +133,22 @@ void DockSettings::setBounceOnLaunch(bool enabled)
         return;
     m_dock.send("setBounceOnLaunch", enabled);
     m_bounceOnLaunch = enabled;
+}
+
+void DockSettings::setTaskbarAlignment(int value)
+{
+    value = std::clamp(value, 0, 1);
+    if (value == m_taskbarAlignment) return;
+    m_dock.send("setTaskbarAlignment", int32_t(value));
+    m_taskbarAlignment = value;
+}
+
+void DockSettings::setTaskbarSearch(int value)
+{
+    value = std::clamp(value, 0, 1);
+    if (value == m_taskbarSearch) return;
+    m_dock.send("setTaskbarSearch", int32_t(value));
+    m_taskbarSearch = value;
 }
 
 } // namespace settings
