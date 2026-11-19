@@ -35,7 +35,13 @@ public:
 
     void setPicture(std::string path)
     {
-        m_picture = addChild<Picture>(std::move(path));
+        if (m_fit == ImageSelectionItem::PreviewFit::Cover) {
+            m_crop = addChild<View>();
+            m_crop->setClipsChildren(true);
+            m_picture = m_crop->addChild<Picture>(std::move(path));
+        } else {
+            m_picture = addChild<Picture>(std::move(path));
+        }
     }
 
     void setIcon(std::unique_ptr<View> icon)
@@ -63,8 +69,18 @@ protected:
     {
         const RectF bounds = localRect();
         if (m_picture) {
-            m_picture->setCornerRadius(Theme::current().bigRadius);
-            m_picture->setGeometry(bounds.shrunk(Margins::all(m_inset)));
+            if (m_crop) {
+                const double edge = 2;
+                const RectF content = bounds.shrunk(Margins::all(edge));
+                m_crop->setGeometry(content);
+                m_crop->setChildClipRadius(std::max(0.0, Theme::current().bigRadius - edge));
+                const double side = std::max(content.width, content.height);
+                m_picture->setCornerRadius(0);
+                m_picture->setGeometry({(content.width - side) / 2, (content.height - side) / 2, side, side});
+            } else {
+                m_picture->setCornerRadius(Theme::current().bigRadius);
+                m_picture->setGeometry(bounds.shrunk(Margins::all(m_inset)));
+            }
         }
         if (m_icon) {
             const SizeF icon = m_icon->sizeHint();
@@ -107,10 +123,11 @@ private:
     bool m_checked = false;
 };
 
-ImageSelectionItem::ImageSelectionItem(std::string path, std::string text, SizeF previewSize)
+ImageSelectionItem::ImageSelectionItem(std::string path, std::string text, SizeF previewSize,
+                                       double previewInset, PreviewFit fit)
 {
     m_layout = addChild<ColumnLayout>();
-    m_preview = m_layout->addChild<SelectionPreview>(previewSize, 4);
+    m_preview = m_layout->addChild<SelectionPreview>(previewSize, previewInset, fit);
     m_preview->setPicture(std::move(path));
     build(std::move(text));
 }

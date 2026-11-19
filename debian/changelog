@@ -1,3 +1,9 @@
+lingmo-settings (5.0.18+lingmo5u1) unstable; urgency=medium
+
+  * Crop Dock position previews to fill their rounded image containers.
+
+ -- Lingmo OS Team <team@lingmo.org>  Thu, 19 Nov 2026 16:00:00 +0800
+
 lingmo-settings (5.0.17+lingmo5u1) unstable; urgency=medium
 
   * Add efficient taskbar alignment and search visibility settings.

@@ -74,7 +74,7 @@ public:
         const char* const pictures[] = {"images/dock_left.svg", "images/dock_bottom.svg", "images/dock_right.svg"};
         for (int i = 0; i < 3; ++i) {
             ImageSelectionItem* tile = tiles->addChild<ImageSelectionItem>(dataPath(pictures[i]), names[i],
-                                                                           SizeF{92,64});
+                    SizeF{92, 64}, 2, ImageSelectionItem::PreviewFit::Cover);
             tile->onClicked = [this, i] {
                 m_settings.setDirection(i);
                 updateDirection();
