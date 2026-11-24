@@ -1,3 +1,9 @@
+lingmo-settings (5.0.22+lingmo5u1) unstable; urgency=medium
+
+  * Show Stage Manager disabled by default when no preference is configured.
+
+ -- Lingmo OS Team <team@lingmo.org>  Wed, 25 Nov 2026 15:00:00 +0800
+
 lingmo-settings (5.0.21+lingmo5u1) unstable; urgency=medium
 
   * Add a small Recheck action below Update now when updates are available.

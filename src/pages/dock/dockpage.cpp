@@ -159,7 +159,7 @@ public:
         stage->setName("stage:enabled");
         stage->setChecked(Lingmo::base::Settings(
                                   Lingmo::base::paths::lingmoConfig("shell"))
-                                  .boolValue("StageManager/Enabled", true));
+                                  .boolValue("StageManager/Enabled", false));
         stage->onToggled=[](bool enabled) {
             Lingmo::base::Settings config(Lingmo::base::paths::lingmoConfig("shell"));
             config.setValue("StageManager/Enabled", enabled);
