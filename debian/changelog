@@ -1,3 +1,9 @@
+lingmo-settings (5.0.20+lingmo5u1) unstable; urgency=medium
+
+  * Read the installed Aurora version metadata from its packaged path.
+
+ -- Lingmo OS Team <team@lingmo.org>  Wed, 25 Nov 2026 10:00:00 +0800
+
 lingmo-settings (5.0.19+lingmo5u1) unstable; urgency=medium
 
   * Add a Stage Manager switch to Desktop and Dock settings.
